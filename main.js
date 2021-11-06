@@ -16,10 +16,12 @@ client.once('ready', () => {
 });
 
 client.on('message', async msg => {
-    if (msg.content === '?latency') {
-        await msg.reply(`Latency is ${Date.now() - message.createdTimestamp}ms. API Latency is ${Math.round(client.ws.ping)}ms`);
-    }
+    if (msg.content === `${prefix}latency`) {
+        var ping = m.createdTimestamp - message.createdTimestamp;
+        var botPing = Math.round(bot.pi);
 
+        m.edit(`**:ping_pong: Pong! Your Ping Is:-**\n  ${ping}ms`);
+    }
 });
 //make sure this line is the last line
 client.login(process.env.CLIENT_TOKEN); //login bot using .env
