@@ -15,7 +15,7 @@ client.once('ready', () => {
     console.log('Ready!');
 });
 
-client.on('message', async msg => {
+client.on('messageCreate', async msg => {
     if (msg.content.startsWith("${prefix}latency")) {
         await msg.reply(new Date().getTime() - msg.createdTimestamp + " ms");
     }
