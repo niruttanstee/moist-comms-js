@@ -5,6 +5,8 @@ const { token } = require('./config.json');
 
 // Create a new client instance
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const prefix = "?"
+
 client.commands = new Collection();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
@@ -21,20 +23,16 @@ client.once('ready', () => {
     console.log('Ready!');
 });
 
-client.on('interactionCreate', async interaction => {
-    if (!interaction.isCommand()) return;
+client.on("message", message => {
+    if(!message.content.startsWith(prefix) || message.author.bot) return;
 
-    const command = client.commands.get(interaction.commandName);
+    const args = message.content.slice(prefix.length).split(/ +/);
+    const command = args.shift().toLowerCase();
 
-    if (!command) return;
-
-    try {
-        await command.execute(interaction);
-    } catch (error) {
-        console.error(error);
-        await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+    if(command === "ping"){
+        client.commands.get("ping").execute(message, args);
     }
-});
+})
 
 // Login to Discord with your client's token
 client.login(token);

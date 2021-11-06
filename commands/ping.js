@@ -5,7 +5,7 @@ module.exports = {
         .setName('ping')
         .setDescription('Replies with Pong!'),
     // put all functions in the execute() function
-    async execute(interaction) {
-        await interaction.reply('Pong!');
+    async execute(message, args) {
+        message.channel.send("Pong!")
     },
 };
