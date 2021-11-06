@@ -5,7 +5,7 @@ const { token } = require('./config.json');
 
 // Create a new client instance
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
-const prefix = "?"
+const prefix = '?'
 
 client.commands = new Collection();
 
@@ -24,11 +24,9 @@ client.once('ready', () => {
 
 client.on("message", message => {
     if(!message.content.startsWith(prefix) || message.author.bot) return;
-
-    const args = message.content.slice(prefix.length).split(/ +/);
     const command = args.shift().toLowerCase();
 
-    if(command === "ping"){
+    if(command === `${prefix}ping`){
         console.log("command ping initiated")
         client.commands.get("ping").execute(message, args);
     }
