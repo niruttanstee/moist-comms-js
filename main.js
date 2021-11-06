@@ -15,17 +15,9 @@ client.once('ready', () => {
     console.log('Ready!');
 });
 
-client.on('interactionCreate', async interaction => {
-    if (!interaction.isCommand()) return;
-
-    const { commandName } = interaction;
-
-    if (commandName === 'ping') {
-        await interaction.reply('Pong!');
-    } else if (commandName === 'server') {
-        await interaction.reply('Server info.');
-    } else if (commandName === 'user') {
-        await interaction.reply('User info.');
+client.on('message', async msg => {
+    if (msg.content === '?latency') {
+        await msg.reply(`Latency is ${Date.now() - message.createdTimestamp}ms. API Latency is ${Math.round(client.ws.ping)}ms`);
     }
 
 });
