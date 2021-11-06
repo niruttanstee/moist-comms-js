@@ -29,6 +29,7 @@ client.on("message", message => {
     const command = args.shift().toLowerCase();
 
     if(command === "ping"){
+        console.log("command ping initiated")
         client.commands.get("ping").execute(message, args);
     }
 })
