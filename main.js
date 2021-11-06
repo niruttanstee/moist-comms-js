@@ -16,11 +16,8 @@ client.once('ready', () => {
 });
 
 client.on('message', async msg => {
-    if (msg.content === `${prefix}latency`) {
-        var ping = m.createdTimestamp - message.createdTimestamp;
-        var botPing = Math.round(bot.pi);
-
-        m.edit(`**:ping_pong: Pong! Your Ping Is:-**\n  ${ping}ms`);
+    if (msg.content.startsWith("${prefix}latency")) {
+        await msg.reply(new Date().getTime() - msg.createdTimestamp + " ms");
     }
 });
 //make sure this line is the last line
