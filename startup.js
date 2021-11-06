@@ -8,6 +8,7 @@ client.on('ready', () => {
 
 client.on('messageCreate', message => {
     if (message.content === 'ping') {
+        console.log("Someone said ping")
         message.channel.send('pong');
     }
 });
