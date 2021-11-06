@@ -6,6 +6,7 @@ const { token } = require('./config.json');
 // Create a new client instance
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 const prefix = '?'
+let option;
 
 client.commands = new Collection();
 
@@ -28,9 +29,12 @@ client.on("messageCreate", message => {
     const args = message.content.slice(prefix.length).split(/ +/);
     const command = args.shift().toLowerCase();
 
-    if(command === "ping"){
-        console.log("command ping initiated")
-        client.commands.get("ping").execute(message, args);
+    switch(command) {
+        case 0:
+            option = "ping";
+            console.log("command ping initiated")
+            client.commands.get("ping").execute(message, args);
+            break
     }
 })
 
