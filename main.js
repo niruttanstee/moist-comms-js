@@ -16,7 +16,7 @@ client.once('ready', () => {
 });
 
 client.on('messageCreate', async msg => {
-    if (msg.content.startsWith("${prefix}latency")) {
+    if (msg.content.startsWith(`${prefix}latency`)) {
         await msg.reply(new Date().getTime() - msg.createdTimestamp + " ms");
     }
 });
