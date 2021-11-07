@@ -21,7 +21,7 @@ module.exports = {
         // get timestamp and current date/time
         let timestamp = message.createdTimestamp
         let now = dayjs()
-        const latency = timestamp - now
+        const latency = now - timestamp
         // console log
         console.log(`${now}: ${user.username} fetched bot latency of ${latency}ms.`)
         // reply to user using embed
