@@ -29,9 +29,8 @@ client.on("messageCreate", message => {
     const command = args.shift().toLowerCase();
 
     switch(command) {
-        case "ping":
-            console.log("command ping initiated")
-            client.commands.get("ping").execute(message, args);
+        case "latency":
+            client.commands.get("latency").execute(message, args);
             break;
     }
 })
