@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="MySQL" uuid="a201d0af-5be9-48bb-8002-0ce25c3463c1">
+    <data-source source="LOCAL" name="s4_discord@server.rapidshard.com" uuid="b8c36ebb-dff9-46d3-a5f0-2998eab4bd52">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://u4_ipbsCuqtBL:c9Z0b7yvPxWaj.0Ev=3miGMa@173.249.2.134:3306/s4_discord_moist_comms</jdbc-url>
+      <jdbc-url>jdbc:mysql://server.rapidshard.com:3306/s4_discord</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

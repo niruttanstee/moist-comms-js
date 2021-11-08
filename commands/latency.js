@@ -43,7 +43,7 @@ module.exports = {
             const latencyEmbedBad = new MessageEmbed()
                 .setColor("#da4747")
                 .setTitle(`Fetched latency: ${latency}ms`)
-                .setDescription("Slower than usual.")
+                .setDescription("Server problems.")
             await message.reply({ embeds: [latencyEmbedBad]});
         }
     },

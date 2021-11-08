@@ -16,7 +16,6 @@ connection.connect(function(err) {
         return console.error('error: ' + err.message);
     }
 });
-const reee = []
 
 module.exports = {
     name: "check",
@@ -32,11 +31,7 @@ module.exports = {
         });
         connection.query(`SELECT * FROM test`, async function (err, result, fields) {
             if (err) throw err;
-            for (let i = 0; i < result.length; i++) {
-                let x = result[i].user;
-                let y = result[i].id
-                reee.push(`${y}. ${x}`);
-            }
+            let reee = result[1];
             console.log(reee)
             await message.channel.send(`${reee}`)
         });
