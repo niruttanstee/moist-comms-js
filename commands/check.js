@@ -16,6 +16,7 @@ const { database_name } = require('./info.json');
 
 const database = mysql.createConnection({
     host: database_local_host,
+    port: 3306,
     user: database_username,
     password: database_password,
     database: database_name
