@@ -32,6 +32,9 @@ client.on("messageCreate", message => {
         case "latency":
             client.commands.get("latency").execute(message, args);
             break;
+        case "check":
+            client.commands.get("check").execute(message, args);
+            break;
     }
 })
 
