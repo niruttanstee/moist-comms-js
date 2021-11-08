@@ -37,7 +37,6 @@ module.exports = {
             }
             console.log(any);
             await message.reply(`${any}`);
-            await self.begin(any);
         })
 
     },
