@@ -16,6 +16,7 @@ connection.connect(function(err) {
         return console.error('error: ' + err.message);
     }
 });
+const any = [];
 
 module.exports = {
     name: "check",
@@ -31,11 +32,14 @@ module.exports = {
         });
         connection.query(`SELECT * FROM test`, async function (err, result, fields) {
             if (err) throw err;
-            let reee = result[1];
-            console.log(reee)
-            await message.channel.send(`${reee}`)
-        });
-
+            for (let i = 0; i < result.length; i++) {
+                any.push(`${result[i].id} ${result[i].user}`);
+            }
+            console.log(any);
+            await message.reply(`${any}`);
+            await self.begin(any);
+        })
 
     },
+
 };
