@@ -15,7 +15,7 @@ const { database_name } = require('./info.json');
 
 
 const database = mysql.createConnection({
-    host: "server.rapidshard.com",
+    host: database_local_host,
     user: database_username,
     password: database_password,
     database: database_name
