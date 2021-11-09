@@ -2,7 +2,6 @@
 * This is to purely test if the database is functioning.
 * when someone says check it adds the user in the database and prints it out.
  */
-const mysql = require("mysql");
 const dayjs = require('dayjs');
 
 const {database_local_host} = require('./info.json');
@@ -18,19 +17,6 @@ module.exports = {
     // put all functions in the execute() function
     async execute(message) {
 
-        let connection = mysql.createConnection({
-            host: "172.0.0.1",
-            user: "u10_s3akpIO2UN",
-            password: "0+z9S03dOJtM1T!@ZF7Gkp!z",
-            database: "s10_discord",
-            port: "3306"
-        });
-
-        connection.connect(function(err) {
-            if (err) throw err;
-            console.log("Connected!");
-        });
-        
         let user = message.author;
         console.log(`${dayjs()}: ${user.username} check[0], initialising.`)
 
