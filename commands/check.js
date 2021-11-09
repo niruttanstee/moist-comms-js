@@ -11,24 +11,26 @@ const {database_password} = require('./info.json');
 const {database_name} = require('./info.json');
 const {port} = require('./info.json');
 
-let connection = mysql.createConnection({
-    host: "172.0.0.1",
-    user: "u10_s3akpIO2UN",
-    password: "0+z9S03dOJtM1T!@ZF7Gkp!z",
-    database: "s10_discord",
-    port: "3306"
-});
-
-connection.connect(function(err) {
-    if (err) throw err;
-    console.log("Connected!");
-});
 
 module.exports = {
     name: "check",
     description: "check database",
     // put all functions in the execute() function
     async execute(message) {
+
+        let connection = mysql.createConnection({
+            host: "172.0.0.1",
+            user: "u10_s3akpIO2UN",
+            password: "0+z9S03dOJtM1T!@ZF7Gkp!z",
+            database: "s10_discord",
+            port: "3306"
+        });
+
+        connection.connect(function(err) {
+            if (err) throw err;
+            console.log("Connected!");
+        });
+        
         let user = message.author;
         console.log(`${dayjs()}: ${user.username} check[0], initialising.`)
 
