@@ -18,7 +18,10 @@ let connection = mysql.createConnection({
     database: "s10_discord"
 });
 
-
+connection.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected!");
+});
 
 module.exports = {
     name: "check",
