@@ -39,7 +39,7 @@ module.exports = {
 
         async function checkDatabase(channel, message, user){
             console.log(`${dayjs()}: check[1] checkDatabase initiated.`)
-            database.query("SELECT * FROM test", async function (err, result, fields) {
+            connection.query("SELECT * FROM test", async function (err, result, fields) {
                 if (err) throw err;
                 if (result.length === 0){
                     console.log("No user in database, append");
@@ -69,7 +69,7 @@ module.exports = {
         async function addToDatabase(channel, message, user){
             console.log(`${dayjs()}: check[2] addToDatabase initiated.`)
             let userID = user.id
-                database.query(`INSERT INTO test VALUES (${userID})`, async function (err, result, fields) {
+                connection.query(`INSERT INTO test VALUES (${userID})`, async function (err, result, fields) {
                     if (err) throw err;
                     console.log(`Database appended`);
                     await message.channel.send(`Database appended`);
@@ -79,7 +79,7 @@ module.exports = {
         // reply to user everyone in database
         async function postDatabase(channel, message, user){
             console.log(`${dayjs()}: check[3] postDatabase initiated.`)
-            database.query("SELECT * FROM test", async function (err, result, fields) {
+            connection.query("SELECT * FROM test", async function (err, result, fields) {
                 let list = [];
                 if (err) throw err;
                 for (let i = 0; i < result.length; i++){
