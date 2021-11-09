@@ -14,10 +14,6 @@ const {port} = require('./info.json');
 
 
 
-connection.connect(function(err) {
-    if (err) throw err;
-    console.log("Database connected");
-});
 
 module.exports = {
     name: "check",
