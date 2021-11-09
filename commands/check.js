@@ -4,24 +4,21 @@
  */
 const mysql = require("mysql");
 const dayjs = require('dayjs');
-const {createConnection} = require("mysql");
 
-const { database_local_host } = require('./info.json');
-const { database_username } = require('./info.json');
-const { database_password } = require('./info.json');
-const { database_name } = require('./info.json');
-
+const {database_local_host} = require('./info.json');
+const {database_username} = require('./info.json');
+const {database_password} = require('./info.json');
+const {database_name} = require('./info.json');
 
 
-
-const database = mysql.createConnection({
+const connection = mysql.createConnection({
     host: database_local_host,
     user: database_username,
     password: database_password,
     database: database_name
 });
 
-database.connect(function(err) {
+connection.connect(function(err) {
     if (err) throw err;
 });
 
