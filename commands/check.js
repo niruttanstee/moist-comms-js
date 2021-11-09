@@ -20,8 +20,9 @@ const connection = mysql.createConnection({
     database: database_name
 });
 
-connection.connect(async function(err) {
+connection.connect(function(err) {
     if (err) throw err;
+    console.log("Database connected");
 });
 
 module.exports = {
