@@ -23,6 +23,10 @@ client.once('ready', () => {
     console.log('Bot is running');
 });
 
+client.on("presenceUpdate", function(oldMember, newMember){
+    console.log(`${newMember}`)
+});
+
 client.on("messageCreate", message => {
     if(!message.content.startsWith(prefix) || message.author.bot) return;
 
@@ -39,6 +43,7 @@ client.on("messageCreate", message => {
     }
 
 })
+
 
 
 
