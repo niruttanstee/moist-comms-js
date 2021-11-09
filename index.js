@@ -23,20 +23,20 @@ client.once('ready', () => {
     console.log('Bot is running');
 });
 
-client.on("presenceUpdate", function(oldMember, newMember){
+client.on("presenceUpdate", async function (oldMember, newMember) {
     // calls twitch_live_role function
-    client.commands.get("twitch_live_role").execute(newMember);
+    await client.commands.get("twitch_live_role").execute(newMember);
 });
 
-client.on("messageCreate", message => {
-    if(!message.content.startsWith(prefix) || message.author.bot) return;
+client.on("messageCreate", async message => {
+    if (!message.content.startsWith(prefix) || message.author.bot) return;
 
     const args = message.content.slice(prefix.length).split(/ +/);
     const command = args.shift().toLowerCase();
 
-    switch(command) {
+    switch (command) {
         case "latency":
-            client.commands.get("latency").execute(message, args);
+            await client.commands.get("latency").execute(message, args);
             break;
     }
 
