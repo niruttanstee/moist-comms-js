@@ -11,7 +11,12 @@ const {database_password} = require('./info.json');
 const {database_name} = require('./info.json');
 const {port} = require('./info.json');
 
-
+let connection = mysql.createConnection({
+    host: "172.0.0.2",
+    user: "u10_s3akpIO2UN",
+    password: "0+z9S03dOJtM1T!@ZF7Gkp!z",
+    database: "s10_discord"
+});
 
 
 
