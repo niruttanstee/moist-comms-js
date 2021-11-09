@@ -15,7 +15,8 @@ let connection = mysql.createConnection({
     host: "172.0.0.1",
     user: "u10_s3akpIO2UN",
     password: "0+z9S03dOJtM1T!@ZF7Gkp!z",
-    database: "s10_discord"
+    database: "s10_discord",
+    port: "3306"
 });
 
 connection.connect(function(err) {
