@@ -9,10 +9,12 @@ const {database_local_host} = require('./info.json');
 const {database_username} = require('./info.json');
 const {database_password} = require('./info.json');
 const {database_name} = require('./info.json');
+const {port} = require('./info.json');
 
 
 const connection = mysql.createConnection({
     host: database_local_host,
+    port: port,
     user: database_username,
     password: database_password,
     database: database_name
