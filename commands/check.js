@@ -5,18 +5,18 @@
 const dayjs = require('dayjs');
 const mysql = require("mysql");
 
-const {database_local_host} = require('./info.json');
+const {database_host} = require('./info.json');
 const {database_username} = require('./info.json');
 const {database_password} = require('./info.json');
 const {database_name} = require('./info.json');
 const {port} = require('./info.json');
 
 const connection = mysql.createConnection({
-    host: "server.rapidshard.com",
-    user: "u10_s3akpIO2UN",
-    password: "0+z9S03dOJtM1T!@ZF7Gkp!z",
-    database: "s10_discord",
-    port: "3306"
+    host: database_host,
+    user: database_username,
+    password: database_password,
+    database: database_name,
+    port: port
 });
 
 connection.connect(function(err) {
