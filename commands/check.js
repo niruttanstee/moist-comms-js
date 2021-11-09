@@ -13,7 +13,7 @@ const {port} = require('./info.json');
 
 
 const connection = mysql.createConnection({
-    host: database_local_host,
+    host: "172.0.0.1",
     port: port,
     user: database_username,
     password: database_password,
