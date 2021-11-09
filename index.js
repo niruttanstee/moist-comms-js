@@ -5,9 +5,9 @@ const { token } = require('./config.json');
 const mysql = require("mysql");
 
 // Create a new client instance
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+const client = new Client({ intents:
+        [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_PRESENCES] });
 const prefix = '?'
-
 client.commands = new Collection();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
@@ -24,7 +24,8 @@ client.once('ready', () => {
 });
 
 client.on("presenceUpdate", function(oldMember, newMember){
-    console.log(`${newMember}`)
+    // calls twitch_live_role function
+    client.commands.get("twitch_live_role").execute(newMember);
 });
 
 client.on("messageCreate", message => {
@@ -36,9 +37,6 @@ client.on("messageCreate", message => {
     switch(command) {
         case "latency":
             client.commands.get("latency").execute(message, args);
-            break;
-        case "check":
-            client.commands.get("check").execute(message, args);
             break;
     }
 
