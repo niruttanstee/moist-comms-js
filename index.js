@@ -1,10 +1,17 @@
 const fs = require('fs');
+const dayjs = require("dayjs");
 const { Client, Collection, Intents } = require('discord.js');
 const { token } = require('./config.json');
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({ intents: [
+        Intents.FLAGS.GUILDS,
+        Intents.FLAGS.GUILD_MESSAGES,
+        Intents.FLAGS.GUILD_MEMBERS,
+        Intents.FLAGS.GUILD_PRESENCES
+]});
 
 client.commands = new Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
@@ -12,9 +19,14 @@ for (const file of commandFiles) {
     // With the key as the command name and the value as the exported module
     client.commands.set(command.data.name, command);
 }
-
-client.once('ready', () => {
-    console.log('Bot is running');});
+for (const file of eventFiles) {
+    const event = require(`./events/${file}`);
+    if (event.once) {
+        client.once(event.name, (...args) => event.execute(...args));
+    } else {
+        client.on(event.name, (...args) => event.execute(...args));
+    }
+}
 
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
@@ -24,6 +36,7 @@ client.on('interactionCreate', async interaction => {
     if (!command) return;
 
     try {
+        console.log(`${dayjs()}: ${interaction.user.tag} in #${interaction.channel.name} triggered a command.`);
         await command.execute(interaction);
     } catch (error) {
         console.error(error);
