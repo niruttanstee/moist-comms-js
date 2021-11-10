@@ -16,6 +16,6 @@ module.exports = {
     description: "creates temporary channel",
     // put all functions in the execute() function
     async execute(message, args) {
-        console.log(args)
+        await message.reply(`Initialise: ${args}`)
     },
 };
