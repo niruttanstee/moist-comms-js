@@ -18,22 +18,19 @@ module.exports = {
         if (latency < 125) {
             const latencyEmbedGood = new MessageEmbed()
                 .setColor("#5bc04c")
-                .setTitle(`${latency}ms`)
-                .setDescription("This is nominal.")
+                .setTitle(`Latency: ${latency}ms`)
             await interaction.reply({ embeds: [latencyEmbedGood]});
         }
         else if (latency >= 125 && latency <= 200) {
             const latencyEmbedAverage = new MessageEmbed()
                 .setColor("#debb32")
-                .setTitle(`Fetched latency: ${latency}ms`)
-                .setDescription("Slower than usual.")
+                .setTitle(`Latency: ${latency}ms`)
             await interaction.reply({ embeds: [latencyEmbedAverage]});
         }
         else {
             const latencyEmbedBad = new MessageEmbed()
                 .setColor("#da4747")
-                .setTitle(`Fetched latency: ${latency}ms`)
-                .setDescription("Very slow.")
+                .setTitle(`Latency: ${latency}ms`)
             await interaction.reply({ embeds: [latencyEmbedBad]});
         }
     },
