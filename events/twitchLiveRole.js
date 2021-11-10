@@ -1,23 +1,22 @@
 const dayjs = require("dayjs");
 module.exports = {
     name: 'presenceUpdate',
-    once: true,
-    async execute(member) {
+    async execute(oldMember, newMember) {
         const {nowLiveRoleID} = require('./guild.json');
-        let status = member.activities;
-        let user = member.member;
+        let status = newMember.activities;
+        let user = newMember.member;
         let guild = user.guild
         let userRoles = user._roles;
         let allActivities = status.toString();
 
         if (allActivities.includes("Twitch")) {
             if (!userRoles.includes(nowLiveRoleID)) {
-                return await giveRole(member, user, nowLiveRoleID, guild);
+                return await giveRole(newMember, user, nowLiveRoleID, guild);
             }
 
         } else {
             if (userRoles.includes(nowLiveRoleID)) {
-                return await removeRole(member, user, nowLiveRoleID, guild);
+                return await removeRole(newMember, user, nowLiveRoleID, guild);
             }
         }
     // function to giveRole live to user
