@@ -36,7 +36,6 @@ client.on('interactionCreate', async interaction => {
     if (!command) return;
 
     try {
-        console.log(`${dayjs()}: ${interaction.user.tag} in #${interaction.channel.name} triggered a command.`);
         await command.execute(interaction);
     } catch (error) {
         console.error(error);
