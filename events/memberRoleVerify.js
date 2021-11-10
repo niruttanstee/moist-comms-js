@@ -7,7 +7,7 @@ module.exports = {
             const {verifiedRoleID} = require('./guild.json');
             let role = guild.roles.cache.get(verifiedRoleID);
             newMember.roles.add(role)
-            console.log(`${dayjs()}: ${user.displayName} has accepted terms and conditions, giving ${role.name} role.`);
+            console.log(`${dayjs()}: ${newMember.displayName} has accepted terms and conditions, giving ${role.name} role.`);
         }
 
     },
