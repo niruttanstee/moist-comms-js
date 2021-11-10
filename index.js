@@ -25,7 +25,7 @@ client.once('ready', () => {
 
 client.on("presenceUpdate", async function (oldMember, newMember) {
     // calls twitch_live_role function
-    await client.commands.get("twitch_live_role").execute(newMember);
+    await client.commands.get("twitchLiveRole").execute(newMember);
 });
 
 client.on("messageCreate", async message => {
@@ -37,6 +37,9 @@ client.on("messageCreate", async message => {
     switch (command) {
         case "latency":
             await client.commands.get("latency").execute(message, args);
+            break;
+        case "temporaryChannel":
+            await client.commands.get("temporaryChannel").execute(message, args);
             break;
     }
 

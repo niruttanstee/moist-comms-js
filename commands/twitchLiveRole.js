@@ -1,7 +1,7 @@
 const dayjs = require('dayjs');
 
 module.exports = {
-    name: "twitch_live_role",
+    name: "twitchLiveRole",
     description: "Give role to Twitch streamer.",
     // put all functions in the execute() function
     async execute(newMember) {
