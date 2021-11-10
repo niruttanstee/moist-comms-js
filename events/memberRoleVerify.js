@@ -3,7 +3,6 @@ module.exports = {
     name: 'guildMemberUpdate',
     async execute(oldMember, newMember) {
         if (!newMember.pending && oldMember.pending){
-            console.log(`${newMember.pending}, ${oldMember.pending}`);
             let guild = newMember.guild;
             const {verifiedRoleID} = require('./guild.json');
             let role = guild.roles.cache.get(verifiedRoleID);
