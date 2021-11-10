@@ -39,6 +39,7 @@ client.on("messageCreate", async message => {
             await client.commands.get("latency").execute(message, args);
             break;
         case "temporaryChannel":
+            console.log(`${message} ${args}`)
             await client.commands.get("temporaryChannel").execute(message, args);
             break;
     }
