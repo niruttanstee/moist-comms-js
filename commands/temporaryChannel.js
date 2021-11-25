@@ -14,24 +14,6 @@ module.exports = {
                 .setDescription('Setup temporary channel.')),
 
     async execute(interaction) {
-        const client = interaction.client;
-        const guild = interaction.guild;
-
-        // initialise permissions
-        await tempChannelPermissions(client, guild);
-
-        async function tempChannelPermissions(client) {
-            if (!client.application?.owner) await client.application?.fetch();
-            const tempChannel = await client.guilds.cache.get('860934544693919744')?.commands.fetch('913385355967885362');
-            const permissions = [
-                {
-                    id: niruttID,
-                    type: 'USER',
-                    permission: true,
-                },
-            ];
-            await tempChannel.permissions.set({permissions});
-            interaction.reply("test")
-        }
+        interaction.reply("Initialised.")
     },
 };
