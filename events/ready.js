@@ -27,11 +27,5 @@ module.exports = {
             await tempChannel.permissions.add({ permissions });
             console.log(`${dayjs()}: TempChannel ready.`)
         }
-
-
-        guild.commands.fetch()
-            .then(commands => console.log(commands))
-            .catch(console.error);
-        console.log(client.commands.keys())
     }
 };
