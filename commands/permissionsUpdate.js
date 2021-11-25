@@ -60,7 +60,7 @@ module.exports = {
         async function permissionUpdated() {
             const permissionUpdated = new MessageEmbed()
                 .setColor("#5bc04c")
-                .setTitle(`Permissions updated.`)
+                .setTitle(`Permissions updated`)
             await interaction.reply({embeds: [permissionUpdated]});
         }
     },
