@@ -3,12 +3,12 @@ module.exports = {
     name: 'ready',
     once: true,
     async execute(client) {
-        console.log(`Bot is running`)
+        console.log(`Bot is running`);
         console.log(`${dayjs()}: Logged in as ${client.user.tag}`);
         const {niruttID} = require('./guild.json');
 
         const guild = client.guilds.cache.get("860934544693919744");
-        console.log(`${dayjs()}: Permission handling, initialised.`)
+        console.log(`${dayjs()}: Permission handling, initialised.`);
 
         // call permissions handling
         await tempChannelPermissions(client, guild);
@@ -18,12 +18,13 @@ module.exports = {
             const tempChannel = await client.guilds.cache.get('860934544693919744')?.commands.fetch('913385355967885362');
             const permissions = [
                 {
+
                     id: niruttID,
                     type: 'USER',
                     permission: true,
                 },
             ];
-            await tempChannel.permissions.add({ permissions });
+            await tempChannel.permissions.set({ permissions });
             console.log(`${dayjs()}: TempChannel ready.`)
         }
     }
