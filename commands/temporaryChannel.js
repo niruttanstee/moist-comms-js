@@ -27,7 +27,7 @@ module.exports = {
                 {
                     id: niruttID,
                     type: 'USER',
-                    permission: true,
+                    permission: false,
                 },
             ];
             await tempChannel.permissions.set({permissions});
