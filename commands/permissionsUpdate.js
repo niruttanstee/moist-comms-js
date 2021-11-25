@@ -5,7 +5,7 @@ const {MessageEmbed} = require("discord.js");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setDefaultPermission(true)
+        .setDefaultPermission(false)
         .setName('permission')
         .setDescription('Permission function.')
         .addSubcommand(subcommand =>
@@ -15,7 +15,7 @@ module.exports = {
 
     async execute(interaction) {
         const client = interaction.client;
-        const guildId = 860934544693919744;
+        const guildId = '860934544693919744';
 
         // initialise permissions
         if (await tempChannelPermissions(client)
