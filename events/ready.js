@@ -8,11 +8,11 @@ module.exports = {
         const guilds = client.guilds;
         const guild = await client.guilds.cache.get('860934544693919744');
 
-        guild.commands.fetch({ guild: "860934544693919744" })
+/*        guild.commands.fetch({ guild: "860934544693919744" })
             .then(perms => console.log(perms))
-            .catch(console.error);
+            .catch(console.error);*/
 
-        console.log( client.commands.keys());
+        //console.log( client.commands.keys());
 
     }
 };
