@@ -18,8 +18,8 @@ module.exports = {
         const guildId = '860934544693919744';
 
         // initialise permissions
-        if (await tempChannelPermissions(client)
-            && await perms(client)) {
+        if (await perms(client)
+            && await tempChannelPermissions(client)) {
             await permissionUpdated();
         }
 
