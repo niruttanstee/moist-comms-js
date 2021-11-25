@@ -16,7 +16,7 @@ module.exports = {
             const tempChannel = await client.guilds.cache.get('860934544693919744')?.commands.fetch('913385355967885362');
             const permissions = [
                 {
-                    id: niruttID,
+                    id: `${niruttID}`,
                     type: 'USER',
                     permission: true,
                 },
