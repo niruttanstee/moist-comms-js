@@ -1,5 +1,4 @@
 const dayjs = require("dayjs");
-const {niruttID} = require("./guild.json");
 module.exports = {
     name: 'ready',
     once: true,
