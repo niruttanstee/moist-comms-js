@@ -1,8 +1,9 @@
 const dayjs = require("dayjs");
+const {nowLiveRoleID} = require('../guild.json');
+
 module.exports = {
     name: 'presenceUpdate',
     async execute(oldMember, newMember) {
-        const {nowLiveRoleID} = require('../guild.json');
         let status = newMember.activities;
         let user = newMember.member;
         let guild = user.guild
