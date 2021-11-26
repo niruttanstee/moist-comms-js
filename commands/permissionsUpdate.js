@@ -14,8 +14,7 @@ module.exports = {
                 .setDescription('Update command permissions.')),
 
     async execute(interaction) {
-        const client = interaction.client;
-        const guildId = '860934544693919744';
+        console.log(interaction.client);
 
         // // initialise permissions
         // if (await perms(client)
