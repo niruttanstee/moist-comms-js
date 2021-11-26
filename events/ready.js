@@ -26,7 +26,6 @@ module.exports = {
                 },
             ];
             await tempChannel.permissions.add({permissions});
-            console.log(`${dayjs()}: Permission function's permission updated.`)
             return true;
         }
 
@@ -43,9 +42,7 @@ module.exports = {
                 },
             ];
             await tempChannel.permissions.add({permissions});
-            console.log(`${dayjs()}: Tempchannel function's permission updated.`)
             return true;
-
         }
     }
 
