@@ -1,6 +1,6 @@
 const dayjs = require("dayjs");
 const mysql = require("mysql");
-const {database_host, port, database_username, database_password, database_name} = require("./database.json");
+const {database_host, port, database_username, database_password, database_name} = require("../database.json");
 const {getVoiceCategory} = require("../commands/temporaryChannel");
 module.exports = {
     name: 'messageReactionAdd',

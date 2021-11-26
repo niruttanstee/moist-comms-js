@@ -15,11 +15,7 @@ const wait = require('util').promisify(setTimeout);
 const dayjs = require('dayjs');
 
 // mysql info
-const {database_host} = require('./database.json');
-const {database_username} = require('./database.json');
-const {database_password} = require('./database.json');
-const {database_name} = require('./database.json');
-const {port} = require('./database.json');
+const {database_host, port, database_username, database_password, database_name} = require("../database.json");
 
 module.exports = {
 
@@ -122,7 +118,7 @@ async function getVoiceCategory(channel, user) {
     const filter = m => m.author.id === user.id;
     const collector = channel.createMessageCollector({ filter, time: 15_000 });
     collector.on('collect', async m => await test(m.content, user, channel));
-    collector.on('end', async collected => {
+    collector.on('end',  async collected => {
         if (collected.size === 0) {
             await channel.send("Timeout")
         }
