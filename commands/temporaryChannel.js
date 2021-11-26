@@ -94,7 +94,6 @@ module.exports = {
             });
 
             // add reactions for the embed message
-            await wait(500);
             await message.react(message.guild.emojis.cache.get('868172184152064070'));
             await wait(500);
             await message.react(message.guild.emojis.cache.get('868172332978548736'));
