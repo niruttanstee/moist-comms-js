@@ -4,6 +4,8 @@ module.exports = {
     name: 'ready',
     once: true,
     async execute(client) {
+        client.user.setActivity('Moist Comms', { type: 'WATCHING' });
+
         console.log(`Bot is running`);
         console.log(`${dayjs()}: Logged in as ${client.user.tag}.`);
         const guildId = '860934544693919744';
