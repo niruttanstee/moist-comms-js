@@ -1,5 +1,4 @@
 const dayjs = require("dayjs");
-const {niruttID} = require("./guild.json");
 module.exports = {
     name: 'ready',
     once: true,
@@ -13,7 +12,7 @@ module.exports = {
         // initialise permissions
         if (await perms(client)
             && await tempChannelPermissions(client)) {
-
+            console.log(`${dayjs()}: Functions operating.`)
         }
 
         async function perms(client) {

@@ -14,6 +14,6 @@ module.exports = {
                 .setDescription('Setup temporary channel.')),
 
     async execute(interaction) {
-        interaction.reply("Initialised.")
+        interaction.reply("Worker ready for programming.")
     },
 };
