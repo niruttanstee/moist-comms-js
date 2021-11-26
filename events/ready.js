@@ -1,18 +1,51 @@
 const dayjs = require("dayjs");
+const {niruttID} = require("./guild.json");
 module.exports = {
     name: 'ready',
     once: true,
     async execute(client) {
         console.log(`Bot is running`);
         console.log(`${dayjs()}: Logged in as ${client.user.tag}.`);
-        const guilds = client.guilds;
-        const guild = await client.guilds.cache.get('860934544693919744');
+        const guildId = '860934544693919744';
 
-/*        guild.commands.fetch({ guild: "860934544693919744" })
-            .then(perms => console.log(perms))
-            .catch(console.error);*/
+        // initialise permissions
+        if (await perms(client)
+            && await tempChannelPermissions(client)) {
 
-        //console.log( client.commands.keys());
+        }
 
+        async function perms(client) {
+            if (!client.application?.owner) await client.application?.fetch();
+            const tempChannel = await client.guilds.cache.get(guildId)?.commands.fetch('913553831311314954');
+            const permissions = [
+                {
+                    id: niruttID,
+                    type: 'USER',
+                    permission: true,
+                },
+            ];
+            await tempChannel.permissions.set({permissions});
+            console.log(`${dayjs()}: Permission function's permission updated.`)
+            return true;
+        }
+
+
+        // temporary channel permission properties
+        async function tempChannelPermissions(client) {
+            if (!client.application?.owner) await client.application?.fetch();
+            const tempChannel = await client.guilds.cache.get(guildId)?.commands.fetch('913385355967885362');
+            const permissions = [
+                {
+                    id: niruttID,
+                    type: 'USER',
+                    permission: true,
+                },
+            ];
+            await tempChannel.permissions.set({permissions});
+            console.log(`${dayjs()}: Tempchannel function's permission updated.`)
+            return true;
+
+        }
     }
+
 };
