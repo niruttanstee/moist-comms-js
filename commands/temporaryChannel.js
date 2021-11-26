@@ -53,7 +53,7 @@ module.exports = {
 
             const setupEmbed = new MessageEmbed()
                 .setColor("#3288de")
-                .setTitle(`Temporary Channel Setup`)
+                .setTitle(`(1) Temporary Channel Setup`)
                 .setDescription(`The setup process is ready to start.\n\nIf you’ve already setup the temporary channel before, your previous progress will be lost.\n\n👉 **Do you wish to continue?**`)
                 .setThumbnail('https://i.imgur.com/BOUt2gY.png')
                 .setFooter('RapidShard | Temporary Channel Version 0.1');
