@@ -15,7 +15,7 @@ module.exports = {
         }
 
         async function perms(client) {
-            if (!client.application?.owner) await client.application?.fetch();
+            //if (!client.application?.owner) await client.application?.fetch();
             const tempChannel = await client.guilds.cache.get(guildId)?.commands.fetch('913553831311314954');
             const permissions = [
                 {
@@ -32,7 +32,7 @@ module.exports = {
 
         // temporary channel permission properties
         async function tempChannelPermissions(client) {
-            if (!client.application?.owner) await client.application?.fetch();
+            //if (!client.application?.owner) await client.application?.fetch();
             const tempChannel = await client.guilds.cache.get(guildId)?.commands.fetch('913385355967885362');
             const permissions = [
                 {
