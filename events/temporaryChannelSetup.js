@@ -1,12 +1,13 @@
 const dayjs = require("dayjs");
 const mysql = require("mysql");
 const {database_host, port, database_username, database_password, database_name} = require("../database.json");
-const {getVoiceCategory} = require("../commands/temporaryChannel");
+const {setupTempChannel, autoSetup} = require("../commands/temporaryChannel");
+const {reviewProperties} = require("../commands/temporaryChannel");
 module.exports = {
     name: 'messageReactionAdd',
 
     async execute(messageReaction, user) {
-        if (user.bot){
+        if (user.bot) {
             return
         }
 
@@ -17,7 +18,7 @@ module.exports = {
 
         await checkDatabase(messageID, guild, user, channel);
 
-        async function checkDatabase(messageID, guildID, user, channelID) {
+        async function checkDatabase(messageID, guild, user, channel) {
             // mysql connection and check for event handling
             let database = mysql.createConnection({
                 host: database_host,
@@ -37,12 +38,10 @@ module.exports = {
 
                     if (result[i].guildID === guild.id && result[i].setupMessageID === messageID && result[i].ownerUserID === user.id) {
                         console.log(`${dayjs()}: Reaction event detected for temporary channel setup.`);
-
-                        return await getVoiceCategory(channel, user);
+                        return await setupTempChannel(user, channel, guild);
                     }
                 }
-            })
+            });
         }
-    },
-
-};
+    }
+}
