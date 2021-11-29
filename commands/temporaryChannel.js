@@ -516,7 +516,7 @@ async function updateField4(message){
             {name: '<:check:868172184152064070> Connect to RapidShard Server', value: '_ _', inline: false},
             {name: '<:check:868172184152064070> Spawn Creation Channel', value: '_ _', inline: false},
             {name: '<:check:868172184152064070> Add Spice and Magic', value: '_ _', inline: false},
-            {name: 'Progress: (Completed)', value: '_ _', inline: false}
+            {name: 'Progress: (Completed)', value:'The temporary channel is ready to be used. If you ever need to change the properties, feel free to edit it individually using slash (/) commands, or alternatively by using the setup command./n/n Brought to you by RapidShard.', inline: false}
         )
         .setFooter(`${function_name} ${version}`);
     await message.edit({embeds: [updateField]});
