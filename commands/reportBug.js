@@ -45,7 +45,5 @@ module.exports = {
             return await niruttObject.send({ embeds: [botReportToUserEmbed]})
         }
 
-
-
     },
 };
