@@ -154,7 +154,7 @@ async function autoSetup(user, channel, guild){
                 // process voiceCategoryID to create voice creation channel
                 let voiceCategory = guild.channels.fetch(voiceCategoryID)
                     .then(async category => {
-                        let creationChannel = await category.createChannel("👋 Create a channel", {type: "GUILD_VOICE", bitrate: 8000, position: 0, rateLimitPerUser: 3});
+                        let creationChannel = await category.createChannel("👋 Create a channel", {type: "GUILD_VOICE", bitrate: 8000, position: 0, rateLimitPerUser: 10});
 
                         //field 2: Creating Creation Channel // field 4: Progress processing
                         await updateField3(message);
