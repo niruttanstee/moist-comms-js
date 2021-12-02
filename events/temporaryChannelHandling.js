@@ -154,7 +154,7 @@ async function channelDisconnectCheck(memberOutChannelId, member, guild){
                     database.query(sql, function (err, result) {
                         if (err) throw err;
                     });
-                    console.log(`${dayjs()}: ${member.displayName}'s room deleted.';
+                    console.log(`${dayjs()}: ${member.displayName}'s room deleted.`);
 
                     return true;
                 }
