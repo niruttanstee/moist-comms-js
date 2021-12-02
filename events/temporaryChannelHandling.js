@@ -18,7 +18,6 @@ module.exports = {
         } else {
             // channel leave checker
             if (await channelDisconnectCheck(states[1], states[2], states[3])){
-                console.log(`${dayjs()}: ${states[2].displayName}'s room deleted.`)
             }
         }
 
@@ -149,15 +148,15 @@ async function channelDisconnectCheck(memberOutChannelId, member, guild){
 
                 // check if size
                 if (memberSize == 0) {
-                    await channelsDelete(voiceChannel, textChannel);
+                    if(await channelsDelete(voiceChannel, textChannel)){
+                        console.log(`${dayjs()}: ${states[2].displayName}'s room deleted.`)
 
-                    let sql = `DELETE FROM temporaryChannelLive WHERE voiceChannelId = ${memberOutChannelId}`;
-                    database.query(sql, function (err, result) {
-                        if (err) throw err;
-                    });
+                        let sql = `DELETE FROM temporaryChannelLive WHERE voiceChannelId = ${memberOutChannelId}`;
+                        database.query(sql, function (err, result) {
+                            if (err) throw err;
+                        });
 
-                    return true;
-
+                    }
                 }
             }
         }
@@ -178,4 +177,5 @@ async function channelsDelete(voiceChannel, textChannel){
     } catch {
         console.error("Couldn't delete textChannel.")
     }
+    return true;
 }
