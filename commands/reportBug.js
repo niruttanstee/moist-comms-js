@@ -33,7 +33,7 @@ module.exports = {
         }
         // function to send report to bot developer (nirutt)
         async function sendProblem(report, member, timestamp, channel, client){
-            const {niruttID} = require('./guild.json');
+            const {niruttID} = require('../guild.json');
             let niruttObject = client.users.cache.get(niruttID);
             const botReportToUserEmbed = new MessageEmbed()
                 .setColor("#da4747")
