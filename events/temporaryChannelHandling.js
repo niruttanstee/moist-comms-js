@@ -156,6 +156,8 @@ async function channelDisconnectCheck(memberOutChannelId, member, guild){
                         if (err) throw err;
                     });
 
+                    return true;
+
                 }
             }
         }
