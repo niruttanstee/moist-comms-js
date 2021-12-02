@@ -18,7 +18,6 @@ module.exports = {
         } else {
             // channel leave checker
             if (await channelDisconnectCheck(states[1], states[2], states[3])){
-                return console.log(`${dayjs()}: ${states[2].displayName}'s room deleted.`)
             }
         }
 
@@ -155,6 +154,7 @@ async function channelDisconnectCheck(memberOutChannelId, member, guild){
                     database.query(sql, function (err, result) {
                         if (err) throw err;
                     });
+                    console.log(`${dayjs()}: ${member.displayName}'s room deleted.';
 
                     return true;
                 }
