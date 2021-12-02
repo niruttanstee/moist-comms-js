@@ -39,7 +39,6 @@ async function getState(oldState, newState){
 }
     
 // checker function that confirms if user is in creation channel or has left a channel
-
 async function channelConnectCheck(memberInChannelId, member, guild) {
     // database connection
     let database = mysql.createConnection({
