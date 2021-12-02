@@ -102,7 +102,6 @@ async function createChannels(voiceCategoryID, textCategoryID, bitrate, userLimi
     database.query(sql, function(err, result) {
         if (err) throw err;
     });
-    console.log(`${dayjs()}: 1 record inserted.`);
 
     await moveMember(member, voiceChannel, guild);
 }
@@ -156,7 +155,6 @@ async function channelDisconnectCheck(memberOutChannelId, member, guild){
                     let sql = `DELETE FROM temporaryChannelLive WHERE voiceChannelId = ${memberOutChannelId}`;
                     database.query(sql, function (err, result) {
                         if (err) throw err;
-                        console.log(`${dayjs()}: 1 record deleted.`);
                     });
 
                 }
