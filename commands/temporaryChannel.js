@@ -60,7 +60,7 @@ async function startup(channel, guild, member, interaction) {
 async function tempchannelSetup(channel, guild, member){
     const setupEmbed = new MessageEmbed()
         .setColor("#3288de")
-        .setTitle(`1. Temporary Channel Setup`)
+        .setTitle("1. Temporary Channel Setup")
         .setDescription(`The setup process is ready to start.\n\nIf you’ve already setup the temporary channel before, your previous progress will be lost.\n\n👉 **Do you wish to continue?**`)
         .setThumbnail('https://i.imgur.com/BOUt2gY.png')
         .setFooter(`${function_name} ${version}`);

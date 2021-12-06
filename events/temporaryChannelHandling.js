@@ -4,7 +4,10 @@
 */
 const dayjs = require("dayjs");
 const mysql = require("mysql");
+const { MessageEmbed } = require("discord.js");
 const {database_host, port, database_username, database_password, database_name} = require("../database.json");
+const function_name = "RapidShard | Temporary Channel"
+const version = 0.1;
 
 module.exports = {
     name: 'voiceStateUpdate',
@@ -81,6 +84,7 @@ async function createChannels(voiceCategoryID, textCategoryID, bitrate, userLimi
     // create the channels
     let voiceChannel = await voiceCategory.createChannel(`${member.displayName}'s room`, {type: "GUILD_VOICE", bitrate: `${bitrate}`});
     let textChannel = await textCategory.createChannel(`${member.displayName}'s room`, {type: "GUILD_TEXT", position: 3});
+    await temporaryChannelStartMessage(textChannel);
 
     // append ids to database
     // database connection
@@ -178,4 +182,14 @@ async function channelsDelete(voiceChannel, textChannel){
         console.error("Couldn't delete textChannel.")
     }
     return true;
+}
+
+//the embed posted when a text channel is created
+async function temporaryChannelStartMessage(textChannel){
+    const startEmbed = new MessageEmbed()
+        .setColor("#3288de")
+        .setTitle("Test field")
+        .setDescription("If you see this, you're big daddy programmer.")
+        .setFooter(`${function_name} ${version}`);
+    await textChannel.send({embeds: [startEmbed]});
 }
