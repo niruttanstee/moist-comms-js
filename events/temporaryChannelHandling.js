@@ -84,7 +84,7 @@ async function createChannels(voiceCategoryID, textCategoryID, bitrate, userLimi
     // create the channels
     let voiceChannel = await voiceCategory.createChannel(`${member.displayName}'s room`, {type: "GUILD_VOICE", bitrate: `${bitrate}`});
     let textChannel = await textCategory.createChannel(`${member.displayName}'s room`, {type: "GUILD_TEXT", position: 3});
-    await temporaryChannelStartMessage(textChannel);
+    await temporaryChannelStartMessage(textChannel, member);
 
     // append ids to database
     // database connection
@@ -185,11 +185,11 @@ async function channelsDelete(voiceChannel, textChannel){
 }
 
 //the embed posted when a text channel is created
-async function temporaryChannelStartMessage(textChannel){
+async function temporaryChannelStartMessage(textChannel, member){
     const startEmbed = new MessageEmbed()
         .setColor("#3288de")
-        .setTitle("Test field")
-        .setDescription("If you see this, you're big daddy programmer.")
+        .setTitle(`${member.displayName}'s Room`)
+        .setDescription(`<@${member.id}> this is your temporary text channel, when your temporary voice channel is empty, this will also be deleted.\n\n Use **/tempchannel commands** to see all the features.`)
         .setFooter(`${function_name} ${version}`);
     await textChannel.send({embeds: [startEmbed]});
 }
