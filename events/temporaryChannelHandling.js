@@ -9,6 +9,19 @@ const {database_host, port, database_username, database_password, database_name}
 const function_name = "RapidShard | Temporary Channel"
 const version = 0.1;
 
+// database connection
+let database = mysql.createConnection({
+    host: database_host,
+    port: port,
+    user: database_username,
+    password: database_password,
+    database: database_name
+});
+
+database.connect(function (err) {
+    if (err) throw err;
+});
+
 module.exports = {
     name: 'voiceStateUpdate',
 
@@ -42,18 +55,6 @@ async function getState(oldState, newState){
     
 // checker function that confirms if user is in creation channel or has left a channel
 async function channelConnectCheck(memberInChannelId, member, guild) {
-    // database connection
-    let database = mysql.createConnection({
-        host: database_host,
-        port: port,
-        user: database_username,
-        password: database_password,
-        database: database_name
-    });
-
-    database.connect(function (err) {
-        if (err) throw err;
-    });
 
     database.query("SELECT * FROM temporaryChannelProperties", async function (err, result, fields) {
         if (err) throw err;
@@ -86,20 +87,6 @@ async function createChannels(voiceCategoryID, textCategoryID, bitrate, userLimi
     let textChannel = await textCategory.createChannel(`${member.displayName}'s room`, {type: "GUILD_TEXT", position: 3});
     await temporaryChannelStartMessage(textChannel, member);
 
-    // append ids to database
-    // database connection
-    let database = mysql.createConnection({
-        host: database_host,
-        port: port,
-        user: database_username,
-        password: database_password,
-        database: database_name
-    });
-
-    database.connect(function (err) {
-        if (err) throw err;
-    });
-
     let sql = `INSERT INTO temporaryChannelLive (guildId, voiceChannelId, textChannelId, ownerId) VALUES (${guild.id}, ${voiceChannel.id}, ${textChannel.id}, ${member.id})`;
     database.query(sql, function(err, result) {
         if (err) throw err;
@@ -116,18 +103,6 @@ async function moveMember(member, channel, guild){
 // function to check if user has left and if so, delete channel
 async function channelDisconnectCheck(memberOutChannelId, member, guild){
     // database connection
-    let database = mysql.createConnection({
-        host: database_host,
-        port: port,
-        user: database_username,
-        password: database_password,
-        database: database_name
-    });
-
-    database.connect(function (err) {
-        if (err) throw err;
-    });
-
     database.query("SELECT * FROM temporaryChannelLive", async function (err, result, fields) {
         if (err) throw err;
 

@@ -17,6 +17,7 @@ client.commands = new Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 
+
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
     // Set a new item in the Collection

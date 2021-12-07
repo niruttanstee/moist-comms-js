@@ -10,22 +10,34 @@
  */
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require("discord.js");
-const mysql = require('mysql');
 const wait = require('util').promisify(setTimeout);
 const dayjs = require('dayjs');
-
+const mysql = require('mysql');
 
 const function_name = "RapidShard | Temporary Channel"
 const version = 0.1;
 
-// mysql info
 const {database_host, port, database_username, database_password, database_name} = require("../database.json");
+
+// database connection
+let database = mysql.createConnection({
+    host: database_host,
+    port: port,
+    user: database_username,
+    password: database_password,
+    database: database_name
+});
+
+database.connect(function (err) {
+    if (err) throw err;
+});
 
 module.exports = {
 
     data: new SlashCommandBuilder()
         .setName('tempchannel')
         .setDescription('Temporary channel function.')
+        .setDefaultPermission(false)
         .addSubcommand(subcommand =>
             subcommand
                 .setName('setup')
@@ -78,19 +90,6 @@ async function tempchannelSetup(channel, guild, member){
         .setFooter(`${function_name} ${version}`);
     const message = await channel.send({ embeds: [setupEmbed]});
 
-    // mysql connection and upload
-    let database = mysql.createConnection({
-        host: database_host,
-        port: port,
-        user: database_username,
-        password: database_password,
-        database: database_name
-    });
-    // check if database exist for this guild
-    database.connect(function(err) {
-        if (err) throw err;
-        console.log(`${dayjs()}: Database connected.`);
-    });
     database.query("SELECT * FROM temporaryChannelProperties", function (err, result, fields){
         if (err) throw err;
         for (let i = 0; i < result.length; i++) {
@@ -143,19 +142,7 @@ async function autoSetup(user, channel, guild){
     await updateField1(message);
 
     // get all data params to setup creation channel
-    // mysql connection and upload
-    let database = mysql.createConnection({
-        host: database_host,
-        port: port,
-        user: database_username,
-        password: database_password,
-        database: database_name
-    });
-    // check if database exist for this guild
-    database.connect(function (err) {
-        if (err) throw err;
-        console.log(`${dayjs()}: Database connected.`);
-    });
+
     // query to fetch voice category to create creation channel
     database.query("SELECT * FROM temporaryChannelProperties", async function (err, result, fields) {
         if (err) throw err;
@@ -191,20 +178,6 @@ async function autoSetup(user, channel, guild){
 // function that checks all user inputs and creates a reaction for user to confirm, otherwise they can go in and
 // edit individual parameters
 async function reviewProperties(user, channel, guild) {
-
-    // mysql connection and upload
-    let database = mysql.createConnection({
-        host: database_host,
-        port: port,
-        user: database_username,
-        password: database_password,
-        database: database_name
-    });
-    // check if database exist for this guild
-    database.connect(function (err) {
-        if (err) throw err;
-        console.log(`${dayjs()}: Database connected.`);
-    });
     // query to fetch all details
     database.query("SELECT * FROM temporaryChannelProperties", async function (err, result, fields) {
         if (err) throw err;
@@ -329,24 +302,14 @@ async function getVoiceCategory(user, channel, guild) {
                 let voiceCategory = await guild.channels.fetch(voiceCategoryID);
                 await successDetectionCategoryID(voiceCategory, channel);
 
-                // mysql connection and check for event handling
-                let database = mysql.createConnection({
-                    host: database_host,
-                    port: port,
-                    user: database_username,
-                    password: database_password,
-                    database: database_name
-                });
-                database.connect(function (err) {
+                let sql = `UPDATE temporaryChannelProperties
+                           SET voiceCategoryID = ${voiceCategory.id}
+                           WHERE guildID = ${guild.id}`;
+                database.query(sql, function (err, result) {
                     if (err) throw err;
-                    let sql = `UPDATE temporaryChannelProperties
-                               SET voiceCategoryID = ${voiceCategory.id}
-                               WHERE guildID = ${guild.id}`;
-                    database.query(sql, function (err, result) {
-                        if (err) throw err;
-                        console.log(`${dayjs()}: voiceCategoryID updated.`);
-                    });
+                    console.log(`${dayjs()}: voiceCategoryID updated.`);
                 });
+
                 return true;
             } else {
 
@@ -381,22 +344,12 @@ async function getTextCategory(user, channel, guild) {
                 let textCategory = await guild.channels.fetch(textCategoryID);
                 await successDetectionCategoryID(textCategory, channel);
 
-                //mysql connection and check for event handling
-                let database = mysql.createConnection({
-                    host: database_host,
-                    port: port,
-                    user: database_username,
-                    password: database_password,
-                    database: database_name
-                });
-                database.connect(function(err) {
+                let sql = `UPDATE temporaryChannelProperties SET textCategoryID = ${textCategory.id} WHERE guildID = ${guild.id}`;
+                database.query(sql, function (err, result) {
                     if (err) throw err;
-                    let sql = `UPDATE temporaryChannelProperties SET textCategoryID = ${textCategory.id} WHERE guildID = ${guild.id}`;
-                    database.query(sql, function (err, result) {
-                        if (err) throw err;
-                        console.log(`${dayjs()}: textCategoryID updated.`);
-                    });
+                    console.log(`${dayjs()}: textCategoryID updated.`);
                 });
+
                 return true;
 
             } else {
@@ -437,22 +390,12 @@ async function getDefaultChannelBitrate(user, channel, guild) {
                 await errorNotFoundEmbed(i, "Bitrate", channel);
             } else {
 
-                //mysql connection and check for event handling
-                let database = mysql.createConnection({
-                    host: database_host,
-                    port: port,
-                    user: database_username,
-                    password: database_password,
-                    database: database_name
-                });
-                database.connect(function (err) {
+                let sql = `UPDATE temporaryChannelProperties SET channelBitrate = ${bitrate} WHERE guildID = ${guild.id}`;
+                database.query(sql, function (err, result) {
                     if (err) throw err;
-                    let sql = `UPDATE temporaryChannelProperties SET channelBitrate = ${bitrate} WHERE guildID = ${guild.id}`;
-                    database.query(sql, function (err, result) {
-                        if (err) throw err;
-                        console.log(`${dayjs()}: channelBitrate updated.`);
-                    });
+                    console.log(`${dayjs()}: channelBitrate updated.`);
                 });
+
                 await successDetectionElement(`Bitrate`, channel)
                 return true;
             }
@@ -484,24 +427,14 @@ async function getDefaultUserLimit(user, channel, guild) {
                 await errorNotFoundEmbed(i, "User limit (number)", channel);
             } else {
 
-                // mysql connection and check for event handling
-                let database = mysql.createConnection({
-                    host: database_host,
-                    port: port,
-                    user: database_username,
-                    password: database_password,
-                    database: database_name
-                });
-                database.connect(function (err) {
+                let sql = `UPDATE temporaryChannelProperties
+                           SET channelUserLimit = ${userLimit}
+                           WHERE guildID = ${guild.id}`;
+                database.query(sql, function (err, result) {
                     if (err) throw err;
-                    let sql = `UPDATE temporaryChannelProperties
-                               SET channelUserLimit = ${userLimit}
-                               WHERE guildID = ${guild.id}`;
-                    database.query(sql, function (err, result) {
-                        if (err) throw err;
-                        console.log(`${dayjs()}: userLimit record updated.`);
-                    });
+                    console.log(`${dayjs()}: userLimit record updated.`);
                 });
+
                 await successDetectionElement(`User limit (${userLimit})`, channel)
                 return true;
             }
@@ -761,34 +694,22 @@ async function hasSymbol(myString) {
  */
 async function checkUser(member, channel, guild, userLimit, interaction) {
 
-    // database connection
-    let database = mysql.createConnection({
-        host: database_host,
-        port: port,
-        user: database_username,
-        password: database_password,
-        database: database_name
-    });
+        database.query("SELECT * FROM temporaryChannelLive", async function (err, result, fields) {
+            if (err) throw err;
 
-    database.connect(function (err) {
-        if (err) throw err;
-    });
+            for (let i = 0; i < result.length; i++) {
 
-    database.query("SELECT * FROM temporaryChannelLive", async function (err, result, fields) {
-        if (err) throw err;
+                if (result[i].guildId === guild.id && result[i].textChannelId === channel.id && result[i].ownerId === member.id) {
+                    console.log(`${dayjs()}: ${member.displayName} user owns the channel.`);
+                    const voiceChannelID = result[i].voiceChannelId;
+                    let voiceChannel = guild.channels.cache.get(voiceChannelID);
+                    return await setUserLimit(voiceChannel, userLimit, interaction);
 
-        for (let i = 0; i < result.length; i++) {
-
-            if (result[i].guildId === guild.id && result[i].textChannelId === channel.id && result[i].ownerId === member.id) {
-                console.log(`${dayjs()}: ${member.displayName} user owns the channel.`);
-                const voiceChannelID =  result[i].voiceChannelId;
-                let voiceChannel = guild.channels.cache.get(voiceChannelID);
-                return await setUserLimit(voiceChannel, userLimit, interaction);
-
+                }
             }
-        }
-        return await notOwnChannel(interaction);
-    });
+            return await notOwnChannel(interaction);
+        });
+
 }
 
 //the embed posted when user does not own the text channel.
