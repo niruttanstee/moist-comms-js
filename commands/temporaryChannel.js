@@ -805,7 +805,7 @@ async function setUserLimit(voiceChannel, userLimit, interaction) {
 
     const member = interaction.member;
 
-    if (userLimit > 0 && userLimit < 100) {
+    if (userLimit >= 0 && userLimit < 100) {
 
         voiceChannel.setUserLimit(userLimit)
         .then()
