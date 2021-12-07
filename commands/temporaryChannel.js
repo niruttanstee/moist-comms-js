@@ -41,12 +41,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('setup')
-                .setDescription('Setup temporary channel.'))
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('userlimit')
-                .setDescription('Sets the user limit of your temporary voice channel.')
-                .addNumberOption(option => option.setName('number').setDescription('The number of user(s) 0-99.').setRequired(true))),
+                .setDescription('Setup temporary channel.')),
 
     async execute(interaction) {
 
@@ -59,11 +54,6 @@ module.exports = {
         if (interaction.options.getSubcommand() === 'setup') {
             console.log(`${dayjs()}: ${member.displayName} initiated tempchannel setup.`);
             await startup(channel, guild, member, interaction);
-        } else if (interaction.options.getSubcommand() === 'userlimit') {
-            console.log(`${dayjs()}: ${member.displayName} initiated tempchannel userLimit.`);
-            const userLimit = interaction.options.getNumber('number');
-            // check if user owns the channel they are in
-            await checkUser(member, channel, guild, userLimit, interaction);
     }
         // below are all function exports
     }, setupTempChannel, autoSetup
@@ -684,74 +674,4 @@ async function hasLetter(myString) {
 async function hasSymbol(myString) {
     let symbols = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
     return symbols.test(myString);
-}
-
-/*
- * check user belonging to the channel
- * @param member
- * @param channel
- * @param guild
- */
-async function checkUser(member, channel, guild, userLimit, interaction) {
-
-        database.query("SELECT * FROM temporaryChannelLive", async function (err, result, fields) {
-            if (err) throw err;
-
-            for (let i = 0; i < result.length; i++) {
-
-                if (result[i].guildId === guild.id && result[i].textChannelId === channel.id && result[i].ownerId === member.id) {
-                    console.log(`${dayjs()}: ${member.displayName} user owns the channel.`);
-                    const voiceChannelID = result[i].voiceChannelId;
-                    let voiceChannel = guild.channels.cache.get(voiceChannelID);
-                    return await setUserLimit(voiceChannel, userLimit, interaction);
-
-                }
-            }
-            return await notOwnChannel(interaction);
-        });
-
-}
-
-//the embed posted when user does not own the text channel.
-async function notOwnChannel(interaction) {
-    const notOwn = new MessageEmbed()
-        .setColor("#de3246")
-        .setTitle(`Only the owner of this channel can customise it.`)
-        .setFooter(`${function_name} ${version}`);
-    await interaction.reply({embeds: [notOwn]});
-}
-
-//set voice channel
-async function setUserLimit(voiceChannel, userLimit, interaction) {
-
-    const member = interaction.member;
-
-    if (userLimit >= 0 && userLimit < 100) {
-
-        voiceChannel.setUserLimit(userLimit)
-        .then()
-        .catch(console.error);
-
-        console.log(`${dayjs()}: ${member.displayName} has changed their channel user limit to ${userLimit}.`)
-        await userLimitSuccess(interaction, userLimit);
-
-    } else {
-        await userLimitFail(interaction);
-    }
-}
-//the embed posted when success
-async function userLimitSuccess(interaction, userLimit) {
-    const done = new MessageEmbed()
-        .setColor("#5bc04c")
-        .setTitle(`User limit has been changed to (${userLimit})`)
-        .setFooter(`${function_name} ${version}`);
-    await interaction.reply({embeds: [done]});
-}
-//the embed posted when success
-async function userLimitFail(interaction) {
-    const fail = new MessageEmbed()
-        .setColor("#de3246")
-        .setTitle(`Userlimit parameter not within (0-99)`)
-        .setFooter(`${function_name} ${version}`);
-    await interaction.reply({embeds: [fail]});
 }

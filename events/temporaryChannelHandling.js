@@ -62,7 +62,7 @@ async function channelConnectCheck(memberInChannelId, member, guild) {
         for (let i = 0; i < result.length; i++) {
 
             if (result[i].guildID === guild.id && result[i].creationChannelID === memberInChannelId) {
-                console.log(`${dayjs()}: ${member.displayName} has joined a creation channel.`);
+                console.log(`${dayjs()}: ${member.displayName} has joined a creation channel, creating temp channel.`);
                 const voiceCategoryID = result[i].voiceCategoryID;
                 const textCategoryID = result[i].textCategoryID ;
                 const bitrate = result[i].channelBitrate;
@@ -109,7 +109,6 @@ async function channelDisconnectCheck(memberOutChannelId, member, guild){
         for (let i = 0; i < result.length; i++) {
 
             if (result[i].guildId === guild.id && result[i].voiceChannelId === memberOutChannelId) {
-                console.log(`${dayjs()}: ${member.displayName} has left a temporary channel.`);
                 const voiceChannelId = result[i].voiceChannelId;
                 const textChannelId = result[i].textChannelId;
 
