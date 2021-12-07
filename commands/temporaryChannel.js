@@ -829,7 +829,7 @@ async function userLimitSuccess(interaction, userLimit) {
 //the embed posted when success
 async function userLimitFail(interaction) {
     const fail = new MessageEmbed()
-        .setColor("#da4747")
+        .setColor("#de3246")
         .setTitle(`Userlimit parameter not within (0-99)`)
         .setFooter(`${function_name} ${version}`);
     await interaction.reply({embeds: [fail]});
