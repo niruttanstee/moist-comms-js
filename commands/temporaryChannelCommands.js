@@ -199,8 +199,7 @@ async function alreadyOwner(interaction) {
 async function successOwnership(user, interaction) {
     const done = new MessageEmbed()
     .setColor("#5bc04c")
-    .setTitle(`Ownership transfer successful`)
-    .setDescription(`${user} now own this temporary channel.`)
+    .setTitle(`${user.username} now owns this temporary channel.`)
     .setFooter(`${function_name} ${version}`);
     await interaction.reply({embeds: [done]});
 }
