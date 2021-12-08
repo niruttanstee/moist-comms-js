@@ -268,13 +268,10 @@ async function setName(name, interaction) {
                         console.log(`${dayjs()}: Tempchannel setName updated.`);
                         return await interaction.editReply({embeds: [success]});
                     }
-
                 }
             }
             return await notOwnChannel(interaction);
         });
-
-
     } else {
        return await setNameTooLong(interaction);
     }
@@ -288,7 +285,6 @@ async function setNameSuccess(name, interaction) {
         .setFooter(`${function_name} ${version}`);
     await interaction.reply({embeds: [success]});
 }
-
 //the embed posted when fail
 async function setNameTooLong(interaction) {
     const tooLong = new MessageEmbed()
