@@ -271,7 +271,7 @@ async function setName(name, interaction) {
 async function setNameSuccess(name, interaction) {
     const success = new MessageEmbed()
         .setColor("#5bc04c")
-        .setTitle(`Channel has been renamed to ${name}.`)
+        .setTitle(`Channel has been renamed to "${name}".`)
         .setFooter(`${function_name} ${version}`);
     await interaction.reply({embeds: [success]});
 }
@@ -279,8 +279,8 @@ async function setNameSuccess(name, interaction) {
 // success embed for changing ownership of temporary channels
 async function setNameDelayed(name, interaction) {
     const delayed = new MessageEmbed()
-        .setColor("#fdf238")
-        .setTitle(`Channel will be renamed to ${name}.`)
+        .setColor("#eecb1d")
+        .setTitle(`Channel will be renamed to "${name}".`)
         .setDescription(`Due to Discord's rate limiter, it can take up to 10 minutes.`)
         .setFooter(`${function_name} ${version}`);
     await interaction.reply({embeds: [delayed]});
