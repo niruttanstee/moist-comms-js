@@ -62,12 +62,12 @@ module.exports = {
         const member = interaction.member;
 
         if (interaction.options.getSubcommand() === 'userlimit') {
-            console.log(`${dayjs()}: ${member.displayName} initiated tempchannel userLimit.`);
+            console.log(`${dayjs()}: ${member.displayName} initiated Tempchannel userLimit.`);
             const userLimit = interaction.options.getNumber('number');
             // check if user owns the channel they are in
             await checkUser(member, channel, guild, userLimit, interaction);
         } else if (interaction.options.getSubcommand() === 'owner') {
-            console.log(`${dayjs()}: ${member.displayName} initiated tempchannel giveOwnership.`);
+            console.log(`${dayjs()}: ${member.displayName} initiated Tempchannel giveOwnership.`);
             const user = interaction.options.getUser('user');
 
             if (user === interaction.user) {
@@ -76,7 +76,7 @@ module.exports = {
                 await giveOwnership(user, interaction);
             }
         } else if (interaction.options.getSubcommand() === 'name') {
-            console.log(`${dayjs()}: ${member.displayName} initiated tempchannel rename.`);
+            console.log(`${dayjs()}: ${member.displayName} initiated Tempchannel rename.`);
             const name = interaction.options.getString('input');
             // call text check if not fail or succeed.
             await setName(name, interaction);
@@ -176,7 +176,7 @@ async function giveOwnership(newOwner, interaction) {
                 let sql = `UPDATE temporaryChannelLive SET ownerId = ${newOwner.id} WHERE textChannelId = ${textChannelId}`;
                 database.query(sql, function (err, result) {
                         if (err) throw err;
-                        console.log(`${dayjs()}: tempchannel ownership updated.`);
+                        console.log(`${dayjs()}: Tempchannel ownership updated.`);
                     }
                 );
 
@@ -238,7 +238,7 @@ async function setName(name, interaction) {
                         let sql = `UPDATE temporaryChannelLive SET renameLimiter = ${newLimiter} WHERE textChannelId = ${textChannelId}`;
                         database.query(sql, function (err, result) {
                                 if (err) throw err;
-                                console.log(`${dayjs()}: tempchannel setName updated.`);
+                                console.log(`${dayjs()}: Tempchannel setName updated.`);
                             }
                         );
                         return await setNameSuccess(name, interaction);
@@ -266,7 +266,7 @@ async function setName(name, interaction) {
                             .setColor("#5bc04c")
                             .setTitle(`Channel has been renamed to "${name}".`)
                             .setFooter(`${function_name} ${version}`);
-                        console.log(`${dayjs()}: tempchannel setName updated.`);
+                        console.log(`${dayjs()}: Tempchannel setName updated.`);
                         return await interaction.editReply({embeds: [success]});
                     }
 
