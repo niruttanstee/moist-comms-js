@@ -163,7 +163,7 @@ async function temporaryChannelStartMessage(textChannel, member){
     const startEmbed = new MessageEmbed()
         .setColor("#3288de")
         .setTitle(`${member.displayName}'s Room`)
-        .setDescription(`<@${member.id}> this is your temporary text channel, when your temporary voice channel is empty, this will also be deleted.\n\n Use **/tempchannel commands** to see all the features.`)
+        .setDescription(`<@${member.id}> this is your temporary text channel, when your temporary voice channel is empty and gets deleted, this will also be deleted.\n\n Use **/tempchannel commands** to see all the features.`)
         .setFooter(`${function_name} ${version}`);
     await textChannel.send({embeds: [startEmbed]});
 }

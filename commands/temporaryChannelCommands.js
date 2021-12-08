@@ -47,7 +47,12 @@ module.exports = {
             subcommand
                 .setName('owner')
                 .setDescription('Transfer temporary channel ownership to someone else.')
-                .addUserOption(option => option.setName('user').setDescription('The user to give ownership.').setRequired(true))),
+                .addUserOption(option => option.setName('user').setDescription('The user to give ownership.').setRequired(true)))
+    .addSubcommand(subcommand =>
+        subcommand
+            .setName('name')
+            .setDescription('Sets the name of the temporary channel.')
+            .addStringOption(option => option.setName('input').setDescription('The name of the temporary channel. (20 Characters)').setRequired(true))),
 
     async execute(interaction) {
 
@@ -70,8 +75,12 @@ module.exports = {
             } else {
                 await giveOwnership(user, interaction);
             }
-
-        }
+        } else if (interaction.options.getSubcommand() === 'name') {
+            console.log(`${dayjs()}: ${member.displayName} initiated tempchannel rename.`);
+            const name = interaction.options.getString('input');
+            // call text check if not fail or succeed.
+            await setName(name, interaction);
+            }
     }
 };
 
@@ -191,7 +200,96 @@ async function successOwnership(user, interaction) {
     const done = new MessageEmbed()
     .setColor("#5bc04c")
     .setTitle(`Ownership transfer successful`)
-    .setDescription(`${user} now owns this temporary channel.`)
+    .setDescription(`${user} now own this temporary channel.`)
     .setFooter(`${function_name} ${version}`);
     await interaction.reply({embeds: [done]});
+}
+
+// check if rename parameter field is less than 20 characters long.
+async function setName(name, interaction) {
+
+    const guild = interaction.guild;
+    const channel = interaction.channel;
+    const member = interaction.member;
+
+    if (name.length > 0 && name.length <= 20) {
+        database.query("SELECT * FROM temporaryChannelLive", async function (err, result, fields) {
+            if (err) throw err;
+
+            for (let i = 0; i < result.length; i++) {
+
+                if (result[i].guildId === guild.id && result[i].textChannelId === channel.id && result[i].ownerId === member.id) {
+                    console.log(`${dayjs()}: ${member.displayName} checker passed, owner of channel.`);
+                    const voiceChannelId = result[i].voiceChannelId;
+                    const textChannelId = result[i].textChannelId;
+                    const renameLimiter = result[i].renameLimiter;
+
+                    if (renameLimiter <= 2) {
+                        // rename
+                        let guild = interaction.guild;
+                        let voiceChannel = guild.channels.cache.get(voiceChannelId);
+                        let textChannel = guild.channels.cache.get(textChannelId);
+
+                        voiceChannel.setName(name);
+                        textChannel.setName(name);
+
+                        let newLimiter = renameLimiter + 1;
+                        // store new limiter
+                        let sql = `UPDATE temporaryChannelLive SET renameLimiter = ${newLimiter} WHERE textChannelId = ${textChannelId}`;
+                        database.query(sql, function (err, result) {
+                                if (err) throw err;
+                                console.log(`${dayjs()}: tempchannel setName updated.`);
+                            }
+                        );
+                        // success message
+                        return await setNameSuccess(name, interaction);
+                    } else {
+                        // rename delay for 10 minutes
+                        // rename
+                        let guild = interaction.guild;
+                        let voiceChannel = guild.channels.cache.get(voiceChannelId);
+                        let textChannel = guild.channels.cache.get(textChannelId);
+
+                        await setNameDelayed(name, interaction);
+                        await wait(600000)
+                        voiceChannel.setName(name);
+                        textChannel.setName(name);
+                    }
+
+                }
+            }
+            return await notOwnChannel(interaction);
+        });
+
+
+    } else {
+       return await setNameTooLong(interaction);
+    }
+
+}
+// success embed for changing ownership of temporary channels
+async function setNameSuccess(name, interaction) {
+    const success = new MessageEmbed()
+        .setColor("#5bc04c")
+        .setTitle(`Channel has been renamed to ${name}.`)
+        .setFooter(`${function_name} ${version}`);
+    await interaction.reply({embeds: [success]});
+}
+
+// success embed for changing ownership of temporary channels
+async function setNameDelayed(name, interaction) {
+    const delayed = new MessageEmbed()
+        .setColor("#fdf238")
+        .setTitle(`Channel will be renamed to ${name}.`)
+        .setDescription(`Due to Discord's rate limiter, it can take up to 10 minutes.`)
+        .setFooter(`${function_name} ${version}`);
+    await interaction.reply({embeds: [delayed]});
+}
+//the embed posted when fail
+async function setNameTooLong(interaction) {
+    const tooLong = new MessageEmbed()
+        .setColor("#de3246")
+        .setTitle(`Your name has too many characters.`)
+        .setFooter(`${function_name} ${version}`);
+    await interaction.reply({embeds: [tooLong]});
 }
