@@ -12,16 +12,21 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('number')
-                .setDescription('Rolls a number between 0 and 100.')),
+                .setDescription('Rolls a number between 0 and 100.'))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('list')
+                .setDescription('Rolls a list of strings.')
+                .addStringOption(option => option.setName('list').setDescription('The list of string (seperated by commas)').setRequired(true))),
 
     async execute(interaction) {
 
         if (interaction.options.getSubcommand() === 'number') {
             return await rollNumber(interaction);
+        } else if (interaction.options.getSubcommand() === 'list') {
+            const list = interaction.options.getString('list');
+            return await rollList(interaction, list);
         }
-
-
-
     },
 };
 
@@ -30,7 +35,49 @@ async function rollNumber(interaction) {
     let number = Math.floor(Math.random() * 100) + 1;
     // Embed for successful detection of category ID
         const numberEmbed = new MessageEmbed()
-            .setColor("#a73bd7")
+            .setColor("#4cc0a5")
             .setTitle(`Rolled ${number}`)
         return await interaction.reply({embeds: [numberEmbed]});
+}
+
+// random roll a list of strings with a counter.
+async function rollList(interaction, list) {
+
+    await interaction.deferReply();
+
+    let spaceList = list.replace(/\s/g,'');
+    let splitList = spaceList.split(',') ;
+    let reserved = [];
+    let randomizedList = [];
+
+    while (reserved.length !== splitList.length) {
+        let findRandomNumber = true;
+        while (findRandomNumber === true) {
+            let randomNumber = Math.floor((Math.random() * splitList.length));
+            if (!reserved.includes(randomNumber)) {
+                reserved.push(randomNumber);
+                break;
+            }
+        }
+    }
+
+    for (let i = 0; i < reserved.length; i++) {
+        let index = reserved[i];
+        randomizedList.push(`**${i+1}.** ${splitList[index]}\n`);
+    }
+
+    let outputList = "";
+
+    for (let x = 0; x < reserved.length; x++) {
+        let item = randomizedList[x];
+        outputList += item;
+    }
+
+    const listEmbed = new MessageEmbed()
+        .setColor("#4cc0a5")
+        .setTitle(`Unboxing List`)
+        .setDescription(`${outputList}`)
+
+    return await interaction.editReply({embeds: [listEmbed]});
+
 }
