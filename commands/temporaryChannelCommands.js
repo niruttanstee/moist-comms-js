@@ -230,8 +230,8 @@ async function setName(name, interaction) {
                         let voiceChannel = guild.channels.cache.get(voiceChannelId);
                         let textChannel = guild.channels.cache.get(textChannelId);
 
-                        voiceChannel.setName(name);
-                        textChannel.setName(name);
+                        await voiceChannel.setName(name);
+                        await textChannel.setName(name);
 
                         let newLimiter = renameLimiter + 1;
                         // store new limiter
@@ -241,19 +241,33 @@ async function setName(name, interaction) {
                                 console.log(`${dayjs()}: tempchannel setName updated.`);
                             }
                         );
-                        // success message
                         return await setNameSuccess(name, interaction);
                     } else {
                         // rename delay for 10 minutes
-                        // rename
                         let guild = interaction.guild;
                         let voiceChannel = guild.channels.cache.get(voiceChannelId);
                         let textChannel = guild.channels.cache.get(textChannelId);
 
-                        await setNameDelayed(name, interaction);
-                        await wait(600000)
-                        voiceChannel.setName(name);
-                        textChannel.setName(name);
+                        const delayed = new MessageEmbed()
+                            .setColor("#eecb1d")
+                            .setTitle(`Channel will be renamed to "${name}".`)
+                            .setDescription(`Due to Discord's rate limiter, it can take up to 10 minutes.`)
+                            .setFooter(`${function_name} ${version}`);
+                        const message = await textChannel.send({embeds: [delayed]});
+
+                        await interaction.deferReply();
+                        await wait(600000);
+
+                        await voiceChannel.setName(name);
+                        await textChannel.setName(name);
+                        await message.delete();
+
+                        const success = new MessageEmbed()
+                            .setColor("#5bc04c")
+                            .setTitle(`Channel has been renamed to "${name}".`)
+                            .setFooter(`${function_name} ${version}`);
+                        console.log(`${dayjs()}: tempchannel setName updated.`);
+                        return await interaction.editReply({embeds: [success]});
                     }
 
                 }
@@ -276,15 +290,6 @@ async function setNameSuccess(name, interaction) {
     await interaction.reply({embeds: [success]});
 }
 
-// success embed for changing ownership of temporary channels
-async function setNameDelayed(name, interaction) {
-    const delayed = new MessageEmbed()
-        .setColor("#eecb1d")
-        .setTitle(`Channel will be renamed to "${name}".`)
-        .setDescription(`Due to Discord's rate limiter, it can take up to 10 minutes.`)
-        .setFooter(`${function_name} ${version}`);
-    await interaction.reply({embeds: [delayed]});
-}
 //the embed posted when fail
 async function setNameTooLong(interaction) {
     const tooLong = new MessageEmbed()
