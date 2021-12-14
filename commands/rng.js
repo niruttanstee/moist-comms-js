@@ -15,9 +15,13 @@ module.exports = {
                 .setDescription('Rolls a number between 0 and 100.'))
         .addSubcommand(subcommand =>
             subcommand
-                .setName('list')
-                .setDescription('Rolls a list of strings.')
-                .addStringOption(option => option.setName('list').setDescription('The list of string (seperated by commas)').setRequired(true))),
+                .setName('oddson')
+                .setDescription('Rolls odds on between 1 and 5.')),
+        // .addSubcommand(subcommand =>
+        //     subcommand
+        //         .setName('list')
+        //         .setDescription('Rolls a list of strings.')
+        //         .addStringOption(option => option.setName('list').setDescription('The list of string (seperated by commas)').setRequired(true))),
 
     async execute(interaction) {
 
@@ -26,6 +30,8 @@ module.exports = {
         } else if (interaction.options.getSubcommand() === 'list') {
             const list = interaction.options.getString('list');
             return await rollList(interaction, list);
+        } else if (interaction.options.getSubcommand() === 'oddson') {
+            return await oddsOn(interaction);
         }
     },
 };
@@ -79,5 +85,19 @@ async function rollList(interaction, list) {
         .setDescription(`${outputList}`)
 
     return await interaction.editReply({embeds: [listEmbed]});
+
+}
+
+// oddsOn, rolls a number between 1 and 5
+
+async function oddsOn(interaction) {
+
+    let member = interaction.member;
+
+    let odds = Math.floor(Math.random() * 5) + 1;
+    const oddsOn = new MessageEmbed()
+        .setColor("#4cc0a5")
+        .setTitle(`Odds on, ${member.displayName} rolled ${odds}`)
+    return await interaction.reply({embeds: [oddsOn]});
 
 }

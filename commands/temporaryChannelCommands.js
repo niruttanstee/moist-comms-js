@@ -52,7 +52,7 @@ module.exports = {
         subcommand
             .setName('name')
             .setDescription('Sets the name of the temporary channel.')
-            .addStringOption(option => option.setName('input').setDescription('The name of the temporary channel. (20 Characters)').setRequired(true))),
+            .addStringOption(option => option.setName('input').setDescription('The name of the temporary channel. (max 20 Characters)').setRequired(true))),
 
     async execute(interaction) {
 
