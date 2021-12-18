@@ -7,7 +7,7 @@ const mysql = require("mysql");
 const { MessageEmbed } = require("discord.js");
 const {database_host, port, database_username, database_password, database_name} = require("../database.json");
 const function_name = "RapidShard | Temporary Channel"
-const version = 0.1;
+const version = 0.2;
 
 // database connection
 let database = mysql.createConnection({
@@ -27,13 +27,19 @@ module.exports = {
 
     async execute(oldState, newState) {
         // call get state
-        let states = await getState(oldState, newState);
+        // let states = await getState(oldState, newState);
+
+        const memberInChannelId = newState.channelId;
+        const memberOutChannelId = oldState.channelId;
+        const guild = oldState.guild;
+        const member = newState.member;
+
         // call checker function for joining
-        if (await channelConnectCheck(states[0], states[2], states[3])){
-            console.log(`${dayjs()}: ${states[2].displayName}'s room created.`)
+        if (await channelConnectCheck(memberInChannelId, member, guild)){
+            console.log(`${dayjs()}: ${member.displayName}'s room created.`)
         } else {
             // channel leave checker
-            if (await channelDisconnectCheck(states[1], states[2], states[3])){
+            if (await channelDisconnectCheck(memberOutChannelId, member, guild)){
             }
         }
 
@@ -42,7 +48,7 @@ module.exports = {
 
 };
 
-async function getState(oldState, newState){
+/*async function getState(oldState, newState){
     // get parameters from member object
     const memberInChannelId = newState.channelId;
     const memberOutChannelId = oldState.channelId;
@@ -52,7 +58,7 @@ async function getState(oldState, newState){
     return [memberInChannelId, memberOutChannelId, member, guild];
 
 }
-    
+   */
 // checker function that confirms if user is in creation channel or has left a channel
 async function channelConnectCheck(memberInChannelId, member, guild) {
 
@@ -87,12 +93,12 @@ async function createChannels(voiceCategoryID, textCategoryID, bitrate, userLimi
     let textChannel = await textCategory.createChannel(`${member.displayName}'s room`, {type: "GUILD_TEXT", position: 3});
     await temporaryChannelStartMessage(textChannel, member);
 
+    await moveMember(member, voiceChannel, guild);
+
     let sql = `INSERT INTO temporaryChannelLive (guildId, voiceChannelId, textChannelId, ownerId) VALUES (${guild.id}, ${voiceChannel.id}, ${textChannel.id}, ${member.id})`;
     database.query(sql, function(err, result) {
         if (err) throw err;
     });
-
-    await moveMember(member, voiceChannel, guild);
 }
 
 // move member to channel
