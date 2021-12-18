@@ -1,4 +1,5 @@
 {
     "git.confirmSync": false,
-    "editor.fontSize": 15
+    "editor.fontSize": 15,
+    "workbench.preferredLightColorTheme": "Default Dark+"
 }

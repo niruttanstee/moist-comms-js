@@ -95,7 +95,7 @@ async function createChannels(voiceCategoryID, textCategoryID, bitrate, userLimi
 
     await moveMember(member, voiceChannel, guild);
 
-    let sql = `INSERT INTO temporaryChannelLive (guildId, voiceChannelId, textChannelId, ownerId) VALUES (${guild.id}, ${voiceChannel.id}, ${textChannel.id}, ${member.id})`;
+    let sql = `INSERT INTO temporaryChannelLive (guildId, voiceChannelId, textChannelId, ownerId, renameLimiter, lockedChannelRoleId) VALUES (${guild.id}, ${voiceChannel.id}, ${textChannel.id}, ${member.id}, 0, 0)`;
     database.query(sql, function(err, result) {
         if (err) throw err;
     });

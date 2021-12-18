@@ -15,7 +15,7 @@ const dayjs = require('dayjs');
 const mysql = require('mysql');
 
 const function_name = "RapidShard | Temporary Channel"
-const version = 0.1;
+const version = 0.2;
 
 const {database_host, port, database_username, database_password, database_name} = require("../database.json");
 
@@ -53,6 +53,7 @@ module.exports = {
             .setName('name')
             .setDescription('Sets the name of the temporary channel.')
             .addStringOption(option => option.setName('input').setDescription('The name of the temporary channel. (max 20 Characters)').setRequired(true))),
+            
 
     async execute(interaction) {
 
