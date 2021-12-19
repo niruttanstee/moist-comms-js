@@ -76,11 +76,14 @@ async function checkUser(member, channel, guild, interaction) {
 }
 
 // give user role and lock channel
-async function unlockChannel(member, guild, voiceChannel, textChannel, roleID, interaction) {
+async function unlockChannel(member, guild, voiceChannel, textChannel, lockedChannelRoleID, interaction) {
 
 
-    let role = guild.roles.cache.get(roleID);
-    await role.delete();
+    let role = guild.roles.cache.get(lockedChannelRoleID);
+
+    await role.delete('The role needed to go')
+        .then(deleted => console.log(`Deleted role ${deleted.name}`))
+        .catch(console.error);
 
     // permissions overwrite
 
