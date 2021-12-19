@@ -80,6 +80,7 @@ async function lockChannel(member, guild, voiceChannel, textChannel, roleID, int
     }).then( async role => {
 
         // permissions overwrite
+        console.log(role);
         await member.roles.add(role);
 
         await voiceChannel.permissionOverwrites.set([
