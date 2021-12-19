@@ -80,7 +80,7 @@ async function lockChannel(member, guild, voiceChannel, textChannel, roleID, int
     }).then( async role => {
 
         // permissions overwrite
-        //await member.roles.add(role);
+        await member.roles.add(role);
 
         await voiceChannel.permissionOverwrites.set([
             {
@@ -119,7 +119,6 @@ async function lockChannel(member, guild, voiceChannel, textChannel, roleID, int
                 allow: [Permissions.FLAGS.READ_MESSAGE_HISTORY, Permissions.FLAGS.VIEW_CHANNEL],
             }
         ]);
-
         let sql = `UPDATE temporaryChannelLive
                            SET lockedChannelRoleId = ${role.id}
                            WHERE ownerId = ${member.id}`;
@@ -127,10 +126,10 @@ async function lockChannel(member, guild, voiceChannel, textChannel, roleID, int
             if (err) throw err;
             console.log(`${dayjs()}: lockedChannelRoleId record updated.`);
         });
-
-        return await lockedChannelEmbed(interaction);
     })
     .catch(console.error);
+
+    return await lockedChannelEmbed(interaction);
 }
 
 //the embed posted when user does not own the text channel.
