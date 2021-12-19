@@ -74,7 +74,7 @@ async function checkUser(member, channel, guild, interaction) {
 // give user role and lock channel
 async function lockChannel(member, guild, voiceChannel, textChannel, roleID, interaction) {
     let lockedChannelPermissionName = `Channel: ${voiceChannel.name}`;
-    let role = guild.roles.create({
+    guild.roles.create({
         name: `${lockedChannelPermissionName}`,
         color: "#fdf238"
     }).then( async role => {
