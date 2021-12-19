@@ -117,6 +117,7 @@ async function channelDisconnectCheck(memberOutChannelId, member, guild){
             if (result[i].guildId === guild.id && result[i].voiceChannelId === memberOutChannelId) {
                 const voiceChannelId = result[i].voiceChannelId;
                 const textChannelId = result[i].textChannelId;
+                const lockedChannelRoleId = result[i].lockedChannelRoleId;
 
                 let voiceChannel = await guild.channels.fetch(voiceChannelId)
                     .then(channel => {
@@ -129,6 +130,13 @@ async function channelDisconnectCheck(memberOutChannelId, member, guild){
                     }).catch(console.error);
 
                 let memberSize = voiceChannel.members.size;
+
+                try {
+                    let role = guild.roles.cache.get(lockedChannelRoleId);
+                    await role.delete();
+                }catch {}
+
+
 
                 // check if size
                 if (memberSize === 0) {
