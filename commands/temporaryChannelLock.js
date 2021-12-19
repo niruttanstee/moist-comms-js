@@ -1,16 +1,8 @@
 /*
- * temporaryChannel
- * A function that creates a temporary channel for users when they join a certain channel. Once all users have left
- * that channel, the channel deletes automatically.
- * Functions:
- * setup creation channel, change temporary channel properties, create temporary channel, move user to channel,
- * check channel empty, delete channel, lock channel, unlock channel, request to join channel / accept by reacting,
- * add user to channel manually, change channel name(with limiter, option by premium and by setup),
- * change channel limit(option by premium and by setup), change channel bitrate(option by premium and by setup)
+ * Lock channel and give user permissions.
  */
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require("discord.js");
-const wait = require('util').promisify(setTimeout);
+const { MessageEmbed, Permissions} = require("discord.js");
 const dayjs = require('dayjs');
 const mysql = require('mysql');
 
@@ -18,6 +10,7 @@ const function_name = "RapidShard | Temporary Channel"
 const version = 0.2;
 
 const {database_host, port, database_username, database_password, database_name} = require("../database.json");
+const {verifiedRoleID, staffID} = require("../guild.json")
 
 // database connection
 let database = mysql.createConnection({
@@ -47,11 +40,6 @@ module.exports = {
         // create a new role and give it to user
         return await checkUser(member, channel, guild, interaction);
 
-        // lock voice channel with join permission only for that user
-
-
-        // lock text channel with read permission only for that user
-
 
     }
 }
@@ -65,13 +53,18 @@ async function checkUser(member, channel, guild, interaction) {
         for (let i = 0; i < result.length; i++) {
 
             if (result[i].guildId === guild.id && result[i].textChannelId === channel.id && result[i].ownerId === member.id) {
-                console.log(`${dayjs()}: ${member.displayName} owns the channel, changing.`);
                 const voiceChannelID = result[i].voiceChannelId;
                 const textChannelID = result[i].textChannelId;
+                const lockedChannelRoleID = result[i].lockedChannelRoleId;
                 let voiceChannel = guild.channels.cache.get(voiceChannelID);
                 let textChannel = guild.channels.cache.get(textChannelID);
 
-                return await lockChannel(member, guild, voiceChannel, textChannel, interaction);
+                if (lockedChannelRoleID === '0') {
+                    return await lockChannel(member, guild, voiceChannel, textChannel, lockedChannelRoleID, interaction);
+                } else {
+                    return await alreadyLocked(interaction);
+                }
+
             }
         }
         return await notOwnChannel(interaction);
@@ -79,20 +72,66 @@ async function checkUser(member, channel, guild, interaction) {
 }
 
 // give user role and lock channel
-async function lockChannel(member, guild, voiceChannel, textChannel, interaction) {
+async function lockChannel(member, guild, voiceChannel, textChannel, roleID, interaction) {
     let lockedChannelPermissionName = `Channel: ${voiceChannel.name}`;
-    role = guild.roles.create({
+    let role = guild.roles.create({
         name: `${lockedChannelPermissionName}`,
-        color: 'BLUE'
-    }).then( role => {
-        interaction.reply(`${role}`)
+        color: "#fdf238"
+    }).then( async role => {
+
+        // permissions overwrite
+        await member.roles.add(role);
+
+        await voiceChannel.permissionOverwrites.set([
+            {
+                id: verifiedRoleID,
+                deny: [Permissions.FLAGS.CONNECT, Permissions.FLAGS.VIEW_CHANNEL],
+            },
+            {
+                id: staffID,
+                deny: [Permissions.FLAGS.CONNECT, Permissions.FLAGS.VIEW_CHANNEL],
+            },
+            {
+                id: guild.id,
+                deny: [Permissions.FLAGS.CONNECT, Permissions.FLAGS.VIEW_CHANNEL],
+            },
+            {
+                id: role.id,
+                allow: [Permissions.FLAGS.CONNECT, Permissions.FLAGS.VIEW_CHANNEL],
+            }
+        ]);
+
+        await textChannel.permissionOverwrites.set([
+            {
+                id: verifiedRoleID,
+                deny: [Permissions.FLAGS.READ_MESSAGE_HISTORY, Permissions.FLAGS.VIEW_CHANNEL],
+            },
+            {
+                id: staffID,
+                deny: [Permissions.FLAGS.READ_MESSAGE_HISTORY, Permissions.FLAGS.VIEW_CHANNEL],
+            },
+            {
+                id: guild.id,
+                deny: [Permissions.FLAGS.CONNECT, Permissions.FLAGS.VIEW_CHANNEL],
+            },
+            {
+                id: role.id,
+                allow: [Permissions.FLAGS.READ_MESSAGE_HISTORY, Permissions.FLAGS.VIEW_CHANNEL],
+            }
+        ]);
+
+        let sql = `UPDATE temporaryChannelLive
+                           SET lockedChannelRoleId = ${role.id}
+                           WHERE ownerId = ${member.id}`;
+        database.query(sql, function (err, result) {
+            if (err) throw err;
+            console.log(`${dayjs()}: lockedChannelRoleId record updated.`);
+        });
+
+        return await lockedChannelEmbed(interaction);
     })
     .catch(console.error);
-
-
-
 }
-
 
 //the embed posted when user does not own the text channel.
 async function notOwnChannel(interaction) {
@@ -101,4 +140,23 @@ async function notOwnChannel(interaction) {
         .setTitle(`Only the owner of this channel can customise it.`)
         .setFooter(`${function_name} ${version}`);
     await interaction.reply({embeds: [notOwn]});
+}
+
+//the embed posted when channel is already unlocked.
+async function alreadyLocked(interaction) {
+    const locked = new MessageEmbed()
+        .setColor("#de3246")
+        .setTitle(`Channel is already locked.`)
+        .setFooter(`${function_name} ${version}`);
+    await interaction.reply({embeds: [locked]});
+}
+
+//the embed posted when lock successful.
+async function lockedChannelEmbed(interaction) {
+    const locked = new MessageEmbed()
+        .setColor("#3288de")
+        .setTitle(`Channel is now locked.`)
+        .setFooter(`${function_name} ${version}`);
+    console.log(`${dayjs()}: ${interaction.member.displayName} has locked their channel.`);
+    await interaction.reply({embeds: [locked]});
 }

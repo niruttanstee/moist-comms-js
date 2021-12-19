@@ -131,7 +131,7 @@ async function channelDisconnectCheck(memberOutChannelId, member, guild){
                 let memberSize = voiceChannel.members.size;
 
                 // check if size
-                if (memberSize == 0) {
+                if (memberSize === 0) {
                     if(await channelsDelete(voiceChannel, textChannel)){}
 
                     let sql = `DELETE FROM temporaryChannelLive WHERE voiceChannelId = ${memberOutChannelId}`;
