@@ -131,16 +131,9 @@ async function channelDisconnectCheck(memberOutChannelId, member, guild){
 
                 let memberSize = voiceChannel.members.size;
 
-                try {
-                    let role = guild.roles.cache.get(lockedChannelRoleId);
-                    await role.delete();
-                }catch {}
-
-
-
                 // check if size
                 if (memberSize === 0) {
-                    if(await channelsDelete(voiceChannel, textChannel)){}
+                    if(await channelsDelete(voiceChannel, textChannel, guild, lockedChannelRoleId)){}
 
                     let sql = `DELETE FROM temporaryChannelLive WHERE voiceChannelId = ${memberOutChannelId}`;
                     database.query(sql, function (err, result) {
@@ -157,7 +150,7 @@ async function channelDisconnectCheck(memberOutChannelId, member, guild){
 }
 
 // function to delete voice channel and text channel if it is empty.
-async function channelsDelete(voiceChannel, textChannel){
+async function channelsDelete(voiceChannel, textChannel, guild, lockedChannelRoleId){
     try {
         await voiceChannel.delete();
     } catch {
@@ -169,6 +162,10 @@ async function channelsDelete(voiceChannel, textChannel){
     } catch {
         console.error("Couldn't delete textChannel.")
     }
+    try {
+        let role = guild.roles.cache.get(lockedChannelRoleId);
+        await role.delete();
+    }catch {}
     return true;
 }
 
