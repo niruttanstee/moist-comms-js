@@ -30,7 +30,6 @@ module.exports = {
 
             database.connect(function (err) {
                 if (err) throw err;
-                console.log(`${dayjs()}: Database connected.`);
             });
             database.query("SELECT * FROM temporaryChannelProperties", async function (err, result, fields) {
                 if (err) throw err;
