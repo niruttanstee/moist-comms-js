@@ -104,19 +104,19 @@ async function lockChannel(member, guild, voiceChannel, textChannel, roleID, int
         await textChannel.permissionOverwrites.set([
             {
                 id: verifiedRoleID,
-                deny: [Permissions.FLAGS.READ_MESSAGE_HISTORY],
+                deny: [Permissions.FLAGS.READ_MESSAGE_HISTORY, Permissions.FLAGS.VIEW_CHANNEL],
             },
             {
                 id: staffID,
-                deny: [Permissions.FLAGS.READ_MESSAGE_HISTORY],
+                deny: [Permissions.FLAGS.READ_MESSAGE_HISTORY, Permissions.FLAGS.VIEW_CHANNEL],
             },
             {
                 id: guild.id,
-                deny: [Permissions.FLAGS.CONNECT],
+                deny: [Permissions.FLAGS.CONNECT, Permissions.FLAGS.VIEW_CHANNEL],
             },
             {
                 id: role.id,
-                allow: [Permissions.FLAGS.READ_MESSAGE_HISTORY],
+                allow: [Permissions.FLAGS.READ_MESSAGE_HISTORY, Permissions.FLAGS.VIEW_CHANNEL],
             }
         ]);
         let sql = `UPDATE temporaryChannelLive
