@@ -62,6 +62,13 @@ async function checkExist(member, owner, guild, interaction) {
                 const textChannelId = result[i].textChannelId;
                 const voiceChannelId = result[i].voiceChannelId;
 
+                const role = guild.roles.cache.get(roleId);
+                const log = role.members;
+                for (let key of log.keys()) {
+                    if (key === member.id) {
+                        return await error(interaction, "You already have permission to join the channel.")
+                    }
+                }
                 return await pendingCheck(member, owner, guild, interaction, roleId, textChannelId, voiceChannelId);
 
             } else if (result[i].ownerId === owner.id && result[i].guildId === guild.id && owner.id === member.id){
@@ -207,5 +214,14 @@ async function alreadyPending(interaction) {
         .setDescription(`You already have a pending request to join this room, please wait for the owner to respond.`)
         .setFooter(`${function_name} ${version}`);
     await interaction.reply({embeds: [pending]});
+}
+
+//embed error
+async function error(interaction, problem) {
+    const debug = new MessageEmbed()
+        .setColor("#de3246")
+        .setTitle(`Error: ${problem}`)
+        .setFooter(`${function_name} ${version}`);
+    await interaction.reply({embeds: [debug]});
 }
 
