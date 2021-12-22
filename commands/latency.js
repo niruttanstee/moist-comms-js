@@ -13,7 +13,7 @@ module.exports = {
         let now = dayjs()
         const latency = now - timestamp
         // console log
-        console.log(`${now}: ${member.displayName} fetched bot latency of ${latency}ms.`)
+        console.log(`${dayjs()}: ${member.displayName} fetched bot latency of ${latency}ms.`)
         // reply to user using embed
         if (latency < 125) {
             const latencyEmbedGood = new MessageEmbed()
