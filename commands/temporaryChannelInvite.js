@@ -31,6 +31,7 @@ module.exports = {
         .addUserOption(option => option.setName('user').setDescription('The user to grant permission.').setRequired(true)),
 
     async execute(interaction) {
+        await interaction.deferReply();
         /*
         Executes a function to check if the user:
         1. has a temporary channel. DONE
@@ -88,7 +89,7 @@ async function error(interaction, problem) {
         .setColor("#de3246")
         .setTitle(`Error: ${problem}`)
         .setFooter(`${function_name} ${version}`);
-    await interaction.reply({embeds: [debug]});
+    await interaction.editReply({embeds: [debug]});
 }
 //embed success to granted person
 async function successMember(interaction, member, targetMember, voiceChannel, textChannel) {
@@ -106,6 +107,6 @@ async function successOwner(interaction, member) {
         .setColor("#33b020")
         .setTitle(`Permission granted to ${member.username}#${member.discriminator}.`)
         .setFooter(`${function_name} ${version}`);
-    console.log(`${dayjs()}: Owner granted ${member.username} permission to join their room.`);
-    await interaction.reply({embeds: [debug]});
+    console.log(`${dayjs()}: Grant permission to initiated.`);
+    await interaction.editReply({embeds: [debug]});
 }
