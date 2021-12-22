@@ -85,38 +85,38 @@ async function lockChannel(member, guild, voiceChannel, textChannel, roleID, int
         await voiceChannel.permissionOverwrites.set([
             {
                 id: verifiedRoleID,
-                deny: [Permissions.FLAGS.CONNECT, Permissions.FLAGS.VIEW_CHANNEL],
+                deny: [Permissions.FLAGS.CONNECT],
             },
             {
                 id: staffID,
-                deny: [Permissions.FLAGS.CONNECT, Permissions.FLAGS.VIEW_CHANNEL],
+                deny: [Permissions.FLAGS.CONNECT],
             },
             {
                 id: guild.id,
-                deny: [Permissions.FLAGS.CONNECT, Permissions.FLAGS.VIEW_CHANNEL],
+                deny: [Permissions.FLAGS.CONNECT],
             },
             {
                 id: role.id,
-                allow: [Permissions.FLAGS.CONNECT, Permissions.FLAGS.VIEW_CHANNEL],
+                allow: [Permissions.FLAGS.CONNECT],
             }
         ]);
 
         await textChannel.permissionOverwrites.set([
             {
                 id: verifiedRoleID,
-                deny: [Permissions.FLAGS.READ_MESSAGE_HISTORY, Permissions.FLAGS.VIEW_CHANNEL],
+                deny: [Permissions.FLAGS.READ_MESSAGE_HISTORY],
             },
             {
                 id: staffID,
-                deny: [Permissions.FLAGS.READ_MESSAGE_HISTORY, Permissions.FLAGS.VIEW_CHANNEL],
+                deny: [Permissions.FLAGS.READ_MESSAGE_HISTORY],
             },
             {
                 id: guild.id,
-                deny: [Permissions.FLAGS.CONNECT, Permissions.FLAGS.VIEW_CHANNEL],
+                deny: [Permissions.FLAGS.CONNECT],
             },
             {
                 id: role.id,
-                allow: [Permissions.FLAGS.READ_MESSAGE_HISTORY, Permissions.FLAGS.VIEW_CHANNEL],
+                allow: [Permissions.FLAGS.READ_MESSAGE_HISTORY],
             }
         ]);
         let sql = `UPDATE temporaryChannelLive
