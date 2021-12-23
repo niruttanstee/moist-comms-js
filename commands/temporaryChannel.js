@@ -590,7 +590,7 @@ async function errorNotFoundEmbed(count, type, channel){
 // Embed for successful detection of element
 async function successDetectionElement(content, channel){
     const categorySuccessEmbed = new MessageEmbed()
-        .setColor("#33b020")
+        .setColor("#5bc04c")
         .setDescription(`**${content} confirmed...**`)
         .setFooter(`${function_name} ${version}`);
     await channel.send({embeds: [categorySuccessEmbed]});
@@ -599,7 +599,7 @@ async function successDetectionElement(content, channel){
 // Embed for successful detection of category ID
 async function successDetectionCategoryID(category, channel){
     const categorySuccessEmbed = new MessageEmbed()
-        .setColor("#33b020")
+        .setColor("#5bc04c")
         .setDescription(`**${category.name} confirmed...**`)
         .setFooter(`${function_name} ${version}`);
     await channel.send({embeds: [categorySuccessEmbed]});

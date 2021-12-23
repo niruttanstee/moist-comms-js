@@ -94,7 +94,7 @@ async function error(interaction, problem) {
 //embed success to granted person
 async function successMember(interaction, member, targetMember, voiceChannel, textChannel) {
     const debug = new MessageEmbed()
-        .setColor("#33b020")
+        .setColor("#5bc04c")
         .setTitle(`${member.user.username}#${member.user.discriminator} has granted you permission to join their room.`)
         .setDescription(`${voiceChannel} ${textChannel}`)
         .setFooter(`${function_name} ${version}`);
@@ -104,7 +104,7 @@ async function successMember(interaction, member, targetMember, voiceChannel, te
 //embed success
 async function successOwner(interaction, member) {
     const debug = new MessageEmbed()
-        .setColor("#33b020")
+        .setColor("#5bc04c")
         .setTitle(`Permission granted to ${member.username}#${member.discriminator}.`)
         .setFooter(`${function_name} ${version}`);
     console.log(`${dayjs()}: Grant permission to initiated.`);

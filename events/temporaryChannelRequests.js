@@ -100,7 +100,7 @@ async function requestHandler(messageReaction, roleId, embedReceiver, embedSende
 //embed for when the owner has accepted to receiver
 async function acceptedEmbedReceiver(member, message) {
     const accept = new MessageEmbed()
-        .setColor("#33b020")
+        .setColor("#5bc04c")
         .setTitle(`${member.user.username}#${member.user.discriminator} has been granted permission to join this room.`)
         .setFooter(`${function_name} ${version}`);
     await message.edit({embeds: [accept]});
@@ -110,7 +110,7 @@ async function acceptedEmbedReceiver(member, message) {
 //embed for when the owner has accepted to sender
 async function acceptedEmbedSender(member, message, voiceChannel, textChannel) {
     const accept = new MessageEmbed()
-        .setColor("#33b020")
+        .setColor("#5bc04c")
         .setTitle(`${member.user.username}#${member.user.discriminator} you've been granted permission to join the room.`)
         .setDescription(`${voiceChannel} ${textChannel}`)
         .setFooter(`${function_name} ${version}`);
