@@ -73,13 +73,13 @@ async function checkExist(member, owner, guild, interaction) {
 
             } else if (result[i].ownerId === owner.id && result[i].guildId === guild.id && owner.id === member.id){
                 //channel requested is your own
-               return await ownerOfChannel(interaction);
+               return await error(interaction, "Can't request to join your own channel.");
             } else if (result[i].ownerId === owner.id && result[i].guildId === guild.id && result[i].lockedChannelRoleId === '0') {
                 //channel is not locked
-               return await notLocked(interaction);
+               return await error(interaction, "Channel requesting isn't locked.");
             }
         }
-        return await notExist(interaction);
+        return await error(interaction, "Channel requested does not exist.");
 
     });
 }
@@ -90,7 +90,7 @@ async function pendingCheck(member, owner, guild, interaction, roleId, textChann
 
         for (let i = 0; i < result.length; i++) {
             if (result[i].roleId === roleId && result[i].channelOwnerId === owner.id && result[i].requesterId === member.id && result[i].status === 1) {
-                return await alreadyPending(interaction);
+                return await error(interaction, "You already have a pending request for this room.");
             }
         }
         return await requestSend(owner, member, roleId, textChannelId, voiceChannelId, guild, interaction);
@@ -130,13 +130,36 @@ async function requestSend(owner, member, roleId, textChannelId, voiceChannelId,
             }
         }
     });
-
-
-
-
-
 }
 
+async function receiverEmbed(owner, member, textChannel, interaction) {
+    await interaction.deferReply();
+    const receive = new MessageEmbed()
+        .setColor("#eecb1d")
+        .setTitle(`${member.user.username}#${member.user.discriminator} has requested to join this room.`)
+        .setFooter(`${function_name} ${version}`);
+    const message = await textChannel.send({embeds: [receive]});
+    await message.react(message.guild.emojis.cache.get('868172184152064070'));
+    await message.react(message.guild.emojis.cache.get('868172332978548736'));
+    return message;
+}
+
+async function senderEmbed(owner, member, interaction) {
+    const receive = new MessageEmbed()
+        .setColor("#eecb1d")
+        .setTitle(`Waiting for a response from ${owner.username}#${owner.discriminator}.`)
+        .setFooter(`${function_name} ${version}`);
+    return await interaction.editReply({embeds: [receive]});
+}
+
+//embed error
+async function error(interaction, problem) {
+    const debug = new MessageEmbed()
+        .setColor("#de3246")
+        .setTitle(`Error: ${problem}`)
+        .setFooter(`${function_name} ${version}`);
+    await interaction.reply({embeds: [debug]});
+}
 // embed for sender timeout
 async function senderTimeoutEmbed(owner, interaction, message) {
     const timeout = new MessageEmbed()
@@ -156,72 +179,5 @@ async function receiverTimeoutEmbed(member, interaction, message) {
         .setFooter(`${function_name} ${version}`);
     await message.edit({embeds: [timeout]});
     await message.reactions.removeAll();
-}
-
-
-async function receiverEmbed(owner, member, textChannel, interaction) {
-    await interaction.deferReply();
-    const receive = new MessageEmbed()
-        .setColor("#a73bd7")
-        .setTitle(`${member.user.username}#${member.user.discriminator} has requested to join this room.`)
-        .setFooter(`${function_name} ${version}`);
-    const message = await textChannel.send({embeds: [receive]});
-    await message.react(message.guild.emojis.cache.get('868172184152064070'));
-    await message.react(message.guild.emojis.cache.get('868172332978548736'));
-    return message;
-}
-
-async function senderEmbed(owner, member, interaction) {
-    const receive = new MessageEmbed()
-        .setColor("#a73bd7")
-        .setTitle(`Waiting for a response from ${owner.username}#${owner.discriminator}.`)
-        .setFooter(`${function_name} ${version}`);
-    return await interaction.editReply({embeds: [receive]});
-}
-
-//the embed posted when user requested to join a channel that does not exist.
-async function notExist(interaction) {
-    const notExist = new MessageEmbed()
-        .setColor("#de3246")
-        .setTitle(`Channel requested does not exist.`)
-        .setFooter(`${function_name} ${version}`);
-    await interaction.reply({embeds: [notExist]});
-}
-
-//the embed posted when user requested to join a channel that does not exist.
-async function ownerOfChannel(interaction) {
-    const owner = new MessageEmbed()
-        .setColor("#de3246")
-        .setTitle(`Cannot request to join your own channel.`)
-        .setFooter(`${function_name} ${version}`);
-    await interaction.reply({embeds: [owner]});
-}
-
-//the embed posted when user requested to join a channel that does not exist.
-async function notLocked(interaction) {
-    const notLockedEmbed = new MessageEmbed()
-        .setColor("#de3246")
-        .setTitle(`Cannot request to join a channel that isn't locked.`)
-        .setFooter(`${function_name} ${version}`);
-    await interaction.reply({embeds: [notLockedEmbed]});
-}
-
-//the embed posted when the request for this channel is already pending.
-async function alreadyPending(interaction) {
-    const pending = new MessageEmbed()
-        .setColor("#de3246")
-        .setTitle(`Cannot send request`)
-        .setDescription(`You already have a pending request to join this room, please wait for the owner to respond.`)
-        .setFooter(`${function_name} ${version}`);
-    await interaction.reply({embeds: [pending]});
-}
-
-//embed error
-async function error(interaction, problem) {
-    const debug = new MessageEmbed()
-        .setColor("#de3246")
-        .setTitle(`Error: ${problem}`)
-        .setFooter(`${function_name} ${version}`);
-    await interaction.reply({embeds: [debug]});
 }
 

@@ -15,7 +15,7 @@ const dayjs = require('dayjs');
 const mysql = require('mysql');
 
 const function_name = "RapidShard | Temporary Channel"
-const version = 0.1;
+const version = 0.2;
 
 const {database_host, port, database_username, database_password, database_name} = require("../database.json");
 
@@ -41,7 +41,11 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('setup')
-                .setDescription('Setup temporary channel.')),
+                .setDescription('Setup temporary channel.'))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('commands')
+                .setDescription('All available commands for temporary channel.')),
 
     async execute(interaction) {
 
@@ -54,7 +58,10 @@ module.exports = {
         if (interaction.options.getSubcommand() === 'setup') {
             console.log(`${dayjs()}: ${member.displayName} initiated tempchannel setup.`);
             await startup(channel, guild, member, interaction);
-    }
+        } else if (interaction.options.getSubcommand() === 'commands') {
+            console.log(`${dayjs()}: ${member.displayName} initiated tempchannel commands.`);
+            return await allCommands(interaction);
+        }
         // below are all function exports
     }, setupTempChannel, autoSetup
 };
@@ -674,4 +681,23 @@ async function hasLetter(myString) {
 async function hasSymbol(myString) {
     let symbols = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
     return symbols.test(myString);
+}
+
+//Embed of all commands
+async function allCommands(interaction) {
+    const debug = new MessageEmbed()
+        .setColor("#3288de")
+        .setTitle("All temporary channel commands")
+        .setThumbnail('https://i.imgur.com/BOUt2gY.png')
+        .addFields(
+            { name: "Set name of your channel:", value: "```/set name```", inline: false },
+            { name: "Set user limit of your channel:", value: "```/set userlimit```", inline: false },
+            { name: "Set new owner of the channel:", value: "```/set owner```", inline: false },
+            { name: "Lock your channel:", value: "```/lock```", inline: false },
+            { name: "Unlock your channel:", value: "```/unlock```", inline: false },
+            { name: "Grant user permission to join locked channel:", value: "```/grant```", inline: false },
+            { name: "Request to join a locked channel:", value: "```/request join```", inline: false })
+        .setFooter(`${function_name} ${version}`);
+    return await interaction.reply({embeds: [debug]});
+
 }
