@@ -31,6 +31,14 @@ module.exports = {
                                 permission: true,
                             }],
                         },
+                        { 
+                            id: '923973282796044339',
+                            permissions: [{
+                                id: '862087786579230761',
+                                type: 'ROLE',
+                                permission: true,
+                            }],
+                        },
                     ];
                     await client.guilds.cache.get(x)?.commands.permissions.set({fullPermissions});
                 }
