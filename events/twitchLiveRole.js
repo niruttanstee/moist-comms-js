@@ -9,8 +9,9 @@ module.exports = {
         let guild = user.guild
         let userRoles = user._roles;
         let allActivities = status.toString();
+        console.log(allActivities)
 
-        if (allActivities.includes("Twitch")) {
+        if (allActivities.includes("Twitch") || allActivities.includes("YouTube")) {
             if (!userRoles.includes(nowLiveRoleID)) {
                 return await giveRole(newMember, user, nowLiveRoleID, guild);
             }
