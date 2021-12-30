@@ -43,10 +43,10 @@ module.exports = {
         const channel = interaction.channel;
         const guild = interaction.guild;
 
-        // await startup(interaction);
-        // if (await getMention(member, channel, guild)){
-        //     await channel.send("Process confirm")
-        // }
+        await startup(interaction);
+        if (await getMention(member, channel, guild)){
+            await channel.send("Process confirm")
+        }
 
 
 
@@ -75,11 +75,17 @@ async function getMention(member, channel, guild) {
         try {
             const collected = await channel.awaitMessages({filter, max: 1, time: 60_000});
             const response = collected.first();
-            if (response === 0) {
-                return true;
-            }
+            await guild.roles.fetch()
+            .then(async role => {
+                for (let key of role.keys()) {
+                    if (`<@&${key}>` === response.content) {
+                        return await channel.send("role is in guild");
+                    }
+                }
 
-
+                return await channel.send("role NOT in guild")
+            })
+            .catch(console.log.err)
 
         }
          catch {

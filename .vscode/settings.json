@@ -1,5 +1,6 @@
 {
     "git.confirmSync": false,
     "editor.fontSize": 15,
-    "workbench.preferredLightColorTheme": "Default Dark+"
+    "workbench.preferredLightColorTheme": "Default Dark+",
+    "editor.fontFamily": "Menlo, Consolas, 'Courier New', monospace"
 }
