@@ -563,7 +563,7 @@ async function addParticipant(message, user, channel){
                             console.log(`${dayjs()}: participants updated.`);
                         }
                     );
-                    return await participantEmbed(user, `${user.username}, you're now registered for ${result[i].gameName} giveaway.`, `👉 Find more information about it here:\n <#${result[i].publishedChannelId}>\n\n🍪 Be on the lookout for a winner's message on **${date}.**`)
+                    return await participantEmbed(user, `${user.username}, you're now registered for ${result[i].gameName} giveaway.`, `👉 Find more information about it here:\n <#${result[i].publishedChannelId}>\n\n🍪 Be on the lookout for a winner's message on **${date} CET.**`)
                 } else {
                     const participantsArray = result[i].participants.split(",");
                     participantsArray.push(`${user.id}`);
@@ -573,7 +573,7 @@ async function addParticipant(message, user, channel){
                             console.log(`${dayjs()}: participants updated.`);
                         }
                     );
-                    return await participantEmbed(user, `${user.username}, you're now registered for ${result[i].gameName} giveaway.`, `👉 Find more information about it here:\n <#${result[i].publishedChannelId}>\n\n🍪 Be on the lookout for a winner's message on **${date}.**`)
+                    return await participantEmbed(user, `${user.username}, you're now registered for ${result[i].gameName} giveaway.`, `👉 Find more information about it here:\n <#${result[i].publishedChannelId}>\n\n🍪 Be on the lookout for a winner's message on **${date} CET.**`)
                 }
             }
         }
