@@ -43,21 +43,31 @@ async function redeemableSchedule(client) {
             let giveawayDate = result[i].date;
             let dateSplit = giveawayDate.split("/")
             const date = new Date(dateSplit[0], dateSplit[1] - 1, dateSplit[2], dateSplit[3], dateSplit[4]);
+            const guild = await client.guilds.cache.get(guildId);
+            const channelId  = result[i].publishedChannelId;
+            const channel = await guild.channels.fetch(channelId);
+            const publishedMessageId = result[i].publishedMessageId;
+            const postedAnnouncementMessage = await channel.messages.fetch(publishedMessageId)
+                .then(message => {
+                    return message})
+                .catch(console.error);
+            await postedAnnouncementMessage.reactions.removeAll();
+
+            // pick a winner
+            const participants = (result[i].participants).split(",");
+
+            let member = guild.members.cache.get(result[i].ownerId);
+            let gameName = result[i].gameName;
+            let redeemableType = result[i].redeemableType;
+            let DlcName = result[i].DlcName;
+            let ImageLink = result[i].imageLink;
+            let platform = result[i].platform;
+            let key = result[i].skey;
+            let removeDate = result[i].removeDate;
+
             const job = await schedule.scheduleJob(date, async function () {
                 // remove reaction
                 try {
-                    const guild = await client.guilds.cache.get(guildId);
-                    const channelId  = result[i].publishedChannelId;
-                    const channel = await guild.channels.fetch(channelId);
-                    const publishedMessageId = result[i].publishedMessageId;
-                    const postedAnnouncementMessage = await channel.messages.fetch(publishedMessageId)
-                        .then(message => {
-                            return message})
-                        .catch(console.error);
-                    await postedAnnouncementMessage.reactions.removeAll();
-
-                    // pick a winner
-                    const participants = (result[i].participants).split(",");
                     const winnerNum = Math.floor(Math.random() * participants.length);
                     const winner = participants[winnerNum];
                     const winnerMember = await guild.members.fetch(winner)
@@ -75,15 +85,6 @@ async function redeemableSchedule(client) {
                     );
 
                     // update published message embed
-                    let member = guild.members.cache.get(result[i].ownerId);
-                    let gameName = result[i].gameName;
-                    let redeemableType = result[i].redeemableType;
-                    let DlcName = result[i].DlcName;
-                    let ImageLink = result[i].imageLink;
-                    let giveawayDate = result[i].date;
-                    let platform = result[i].platform;
-                    let key = result[i].skey;
-                    let removeDate = result[i].removeDate;
 
                     await updateEmbedMessage(member, channel, guild, gameName, redeemableType, DlcName, ImageLink, giveawayDate, postedAnnouncementMessage, platform, winnerMember);
                     // tell winner
