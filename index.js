@@ -8,7 +8,9 @@ const client = new Client({ intents: [
         Intents.FLAGS.GUILD_MEMBERS,
         Intents.FLAGS.GUILD_PRESENCES,
         Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-        Intents.FLAGS.GUILD_VOICE_STATES
+        Intents.FLAGS.GUILD_VOICE_STATES,
+        Intents.FLAGS.DIRECT_MESSAGES,
+        Intents.FLAGS.DIRECT_MESSAGE_TYPING
 ],
     partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
 });
