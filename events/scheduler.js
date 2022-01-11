@@ -57,7 +57,7 @@ async function redeemableSchedule(client) {
                     await postedAnnouncementMessage.reactions.removeAll();
 
                     // pick a winner
-                    const participants = result[i].participants.split(",");
+                    const participants = (result[i].participants).split(",");
                     const winnerNum = Math.floor(Math.random() * participants.length);
                     const winner = participants[winnerNum];
                     const winnerMember = await guild.members.fetch(winner)
