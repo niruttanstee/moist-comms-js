@@ -28,14 +28,15 @@ module.exports = {
     once: true,
     async execute(client) {
         console.log(`${dayjs()}: Scheduler on.`);
-        await redeemableSchedule(client);
+        const guild = client.guilds.cache.get(guildId);
+        await redeemableSchedule(client, guild);
 
     }, redeemableSchedule
 
 };
 
 // scheduler
-async function redeemableSchedule(client) {
+async function redeemableSchedule(client, guild) {
     console.log(`${dayjs()}: RedeemableScheduler is initiated.`)
     database.query("SELECT * FROM redeemable", async function (err, result, fields) {
         if (err) throw err;
@@ -51,7 +52,6 @@ async function redeemableSchedule(client) {
                         if (err) throw err;
                         for (let i = 0; i < result.length; i++) {
                             if (messageId === result[i].messageId) {
-                                const guild = await client.guilds.cache.get(guildId);
                                 const channelId  = result[i].publishedChannelId;
                                 const channel = await guild.channels.fetch(channelId);
                                 const publishedMessageId = result[i].publishedMessageId;
