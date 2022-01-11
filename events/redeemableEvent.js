@@ -113,7 +113,7 @@ async function redeemableConfirmation(member, channel, guild, messageId, client)
                                 if (content.toLowerCase() === "confirm") {
                                     const textChannel = await publishRedeemable(member,channel, guild, gameName, mention, redeemableType, DlcName, imageLink, date, messageId, platform);
                                     await confirmPublish(textChannel, member, channel);
-                                    return redeemableSchedule(client);
+                                    return redeemableSchedule(client, guild);
                                 }
                                 const option = Number(content);
                                 // game name option 1
@@ -263,7 +263,7 @@ async function redeemableConfirmation(member, channel, guild, messageId, client)
                                 if (content.toLowerCase() === "confirm") {
                                     const textChannel = await publishRedeemable(member,channel, guild, gameName, mention, redeemableType, DlcName, imageLink, date, messageId, platform);
                                     await confirmPublish(textChannel, member, channel);
-                                    return redeemableSchedule(client);
+                                    return redeemableSchedule(client, guild);
                                 }
                                 const option = Number(content);
                                 // game name option 1
