@@ -530,7 +530,7 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
         if (ImageLink !== "None") {
             const debug = new MessageEmbed()
                 .setColor("#a73bd7")
-                .setTitle(`${gameName} DLC (${DlcName}) GIVEAWAY @${giveawayDate} GMT`)
+                .setTitle(`${gameName} DLC (${DlcName}) GIVEAWAY @${giveawayDate} CET`)
                 .setThumbnail('https://i.imgur.com/BOUt2gY.png')
                 .setDescription(`👏 **${member.username}#${member.discriminator}** is giving away a DLC/Expansion Pack for **${gameName}.**` +
                 `\n\nℹ️ Supported platform: **${platform}**` +
@@ -551,7 +551,7 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
             // does not have an image
             const debug = new MessageEmbed()
                 .setColor("#a73bd7")
-                .setTitle(`${gameName} DLC (${DlcName}) GIVEAWAY @${giveawayDate} GMT`)
+                .setTitle(`${gameName} DLC (${DlcName}) GIVEAWAY @${giveawayDate} CET`)
                 .setThumbnail('https://i.imgur.com/BOUt2gY.png')
                 .setDescription(`👏 **${member.username}#${member.discriminator}** is giving away a DLC/Expansion Pack for **${gameName}.**\n\n` +
                     `\n\nℹ️ Supported platform: **${platform}**` +
@@ -574,7 +574,7 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
         if (ImageLink !== "None") {
             const debug = new MessageEmbed()
                 .setColor("#a73bd7")
-                .setTitle(`${gameName} GIVEAWAY @${giveawayDate} GMT`)
+                .setTitle(`${gameName} GIVEAWAY @${giveawayDate} CET`)
                 .setThumbnail('https://i.imgur.com/BOUt2gY.png')
                 .setDescription(`👏 **${member.username}#${member.discriminator}** is giving away a full game copy of **${gameName}.**` +
                     `\n\nℹ️ Supported platform: **${platform}**` +
@@ -595,7 +595,7 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
             // does not have an image
             const debug = new MessageEmbed()
                 .setColor("#a73bd7")
-                .setTitle(`${gameName} GIVEAWAY @${giveawayDate} GMT`)
+                .setTitle(`${gameName} GIVEAWAY @${giveawayDate} CET`)
                 .setThumbnail('https://i.imgur.com/BOUt2gY.png')
                 .setDescription(`👏 **${member.username}#${member.discriminator}** is giving away a full game copy of **${gameName}.**` +
                     `\n\nℹ️ Supported platform: **${platform}**` +
