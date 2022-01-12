@@ -64,7 +64,7 @@ module.exports = {
                                 const messageId = result[i].messageId;
                                 return redeemableConfirmation(member, channel, guild, messageId, client);
                             } else {
-                                return error(member, "This symbol is not detected as a typical serial key.")
+                                return error(member, "This symbol is not detected in a typical serial key.")
                             }
                         }
                     }
