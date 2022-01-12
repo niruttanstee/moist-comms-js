@@ -121,15 +121,18 @@ async function redeemableScheduleRemoval(client, guild) {
         for (let i = 0; i < result.length; i++) {
             let endDate = result[i].removeDate;
             let channelId = result[i].publishedChannelId;
-            let channel = guild.channels.fetch(channelId);
+            let channel = guild.channels.fetch(channelId)
+                .then(channel => {return channel})
+                .catch(console.error);
             let dateSplit = endDate.split("/")
             const date = new Date(dateSplit[0], dateSplit[1] - 1, dateSplit[2], dateSplit[3], dateSplit[4]);
             const job = await schedule.scheduleJob(date, async function () {
                 try {
+                    console.log(channel);
                     // schedule remove date
                     await channel.delete()
-                        .then()
-                        .catch();
+                        .then(console.log)
+                        .catch(console.error);
                 } catch (e) {
                     console.error(e)
                 }
