@@ -33,13 +33,14 @@ module.exports = {
     async execute(message) {
 
         //check if message is a dm for the redeemable Event
-        if (message.channelId === rapidShardChannelId) {
+        console.log(message.guildId === null && message.author.bot === false)
+        if (message.channelId === rapidShardChannelId && message.author.bot === false) {
             try {
                 database.query("SELECT * FROM redeemable", async function (err, result, fields) {
                     if (err) throw err;
                     for (let i = 0; i < result.length; i++) {
                         if (result[i].ownerId === message.author.id && result[i].skey === null) {
-                            let sql = `UPDATE redeemable SET skey = '${message.content}' 
+                            let sql = `UPDATE redeemable SET skey = '${message.content}'
                                         WHERE ownerId = ${message.author.id} AND messageId = ${result[i].messageId}`;
                             database.query(sql, function (err, result) {
                                     if (err) throw err;
@@ -51,9 +52,8 @@ module.exports = {
                             await backToChannel(member, `Please continue by going back to the Moist Comms channel.`);
                             const client = message.client;
                             const guild = await client.guilds.fetch(guildId);
-                            const channel = await guild.channels.fetch(result[i].channelId);
+                            const channel = await guild.channels.cache.get(result[i].channelId);
                             const messageId = result[i].messageId;
-                            await channel.send(`${member}`);
                             return redeemableConfirmation(member, channel, guild, messageId, client);
                         }
                     }
@@ -84,6 +84,7 @@ async function backToChannel(channel, message) {
 // function to confirm the giveaway
 async function redeemableConfirmation(member, channel, guild, messageId, client) {
 
+    await channel.send(`${member}`);
     database.query("SELECT * FROM redeemable", async function (err, result, fields) {
         if (err) throw err;
         for (let i = 0; i < result.length; i++) {
