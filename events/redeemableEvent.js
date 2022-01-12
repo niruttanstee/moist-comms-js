@@ -33,8 +33,7 @@ module.exports = {
     async execute(message) {
 
         //check if message is a dm for the redeemable Event
-        console.log(message.guildId === null && message.author.bot === false)
-        if (message.channelId === rapidShardChannelId && message.author.bot === false) {
+        if (message.guildId === null && message.author.bot === false) {
             try {
                 database.query("SELECT * FROM redeemable", async function (err, result, fields) {
                     if (err) throw err;
@@ -565,7 +564,7 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
                 .setColor("#a73bd7")
                 .setTitle(`${gameName} DLC (${DlcName}) GIVEAWAY @${giveawayDate} CET`)
                 .setThumbnail('https://i.imgur.com/BOUt2gY.png')
-                .setDescription(`👏 **${member.username}#${member.discriminator}** is giving away a DLC/Expansion Pack for **${gameName}.**\n\n` +
+                .setDescription(`👏 **${member.username}#${member.discriminator}** is giving away a DLC/Expansion Pack for **${gameName}.**` +
                     `\n\nℹ️ Supported platform: **${platform}**` +
                     `\n\n👉 The winner will receive a digital key for the DLC: **${DlcName}** which will be dmed by the Rapidshard bot.\n\n` +
                     `🍋 To participate, react to the check below and you'll be put into a random draw at the given date.\n\n🐻 This draw is free.`)

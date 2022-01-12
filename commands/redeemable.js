@@ -40,7 +40,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('redeemable')
-                .setDescription('Create digital redeemable keys giveaway.')),
+                .setDescription('Create redeemable of digital key giveaway.')),
     async execute(interaction) {
 
         const member = interaction.member;

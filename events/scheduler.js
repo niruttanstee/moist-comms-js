@@ -169,7 +169,7 @@ async function updateEmbedMessage(member, textChannel, guild, gameName, redeemab
                 .setColor("#3288de")
                 .setTitle(`${gameName} DLC (${DlcName}) GIVEAWAY @${giveawayDate} CET`)
                 .setThumbnail('https://i.imgur.com/BOUt2gY.png')
-                .setDescription(`👏 **${member.user.username}#${member.user.discriminator}** is giving away a DLC/Expansion Pack for **${gameName}.**\n\n` +
+                .setDescription(`👏 **${member.user.username}#${member.user.discriminator}** is giving away a DLC/Expansion Pack for **${gameName}.**` +
                     `\n\nℹ️ Supported platform: **${platform}**` +
                     `\n\n👉 The winner will receive a digital key for the DLC: **${DlcName}** which will be dmed by the Rapidshard bot.\n\n` +
                     `🍋 To participate, react to the check below and you'll be put into a random draw at the given date.\n\n🐻 This draw is free.`)
