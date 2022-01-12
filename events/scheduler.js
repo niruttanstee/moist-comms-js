@@ -118,11 +118,11 @@ async function redeemableScheduleRemoval(client, guild) {
     console.log(`${dayjs()}: Redeemable removal is initiated.`)
     database.query("SELECT * FROM redeemable", async function (err, result, fields) {
         if (err) throw err;
-        for (let i in result.length) {
-            const removeDate = result[i].removeDate;
-            const channelId = result[i].publishedChannelId;
-            const channel = guild.channels.cache.get(channelId);
-            let dateSplit = removeDate.split("/")
+        for (let i = 0; i < result.length; i++) {
+            let endDate = result[i].removeDate;
+            let channelId = result[i].publishedChannelId;
+            let channel = guild.channels.fetch(channelId);
+            let dateSplit = endDate.split("/")
             const date = new Date(dateSplit[0], dateSplit[1] - 1, dateSplit[2], dateSplit[3], dateSplit[4]);
             const job = await schedule.scheduleJob(date, async function () {
                 try {
