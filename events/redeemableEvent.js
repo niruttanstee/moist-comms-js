@@ -40,21 +40,32 @@ module.exports = {
                     if (err) throw err;
                     for (let i = 0; i < result.length; i++) {
                         if (result[i].ownerId === message.author.id && result[i].skey === null) {
-                            let sql = `UPDATE redeemable SET skey = '${message.content}'
-                                        WHERE ownerId = ${message.author.id} AND messageId = ${result[i].messageId}`;
-                            database.query(sql, function (err, result) {
-                                    if (err) throw err;
-                                    console.log(`${dayjs()}: skey inserted.`);
-                                }
-                            );
+
                             const member = message.author;
-                            await success(member, `Confirmed, ${message.content}`)
-                            await backToChannel(member, `Please continue by going back to the Moist Comms channel.`);
-                            const client = message.client;
-                            const guild = await client.guilds.fetch(guildId);
-                            const channel = await guild.channels.cache.get(result[i].channelId);
-                            const messageId = result[i].messageId;
-                            return redeemableConfirmation(member, channel, guild, messageId, client);
+
+                            async function hasSymbol(myString) {
+                                let symbols = /[@#$%^&*()_+\=\[\]{};'"\\,.<>\?]+/;
+                                return symbols.test(myString);
+                            }
+
+                            if (!await hasSymbol(message.content)) {
+                                let sql = `UPDATE redeemable SET skey = '${message.content}'
+                                        WHERE ownerId = ${message.author.id} AND messageId = ${result[i].messageId}`;
+                                database.query(sql, function (err, result) {
+                                        if (err) throw err;
+                                        console.log(`${dayjs()}: skey inserted.`);
+                                    }
+                                );
+                                await success(member, `Confirmed, ${message.content}`)
+                                await backToChannel(member, `Please continue by going back to the Moist Comms channel.`);
+                                const client = message.client;
+                                const guild = await client.guilds.fetch(guildId);
+                                const channel = await guild.channels.cache.get(result[i].channelId);
+                                const messageId = result[i].messageId;
+                                return redeemableConfirmation(member, channel, guild, messageId, client);
+                            } else {
+                                return error(member, "This symbol is not detected as a typical serial key.")
+                            }
                         }
                     }
                 });
