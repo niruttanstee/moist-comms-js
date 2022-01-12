@@ -30,6 +30,7 @@ module.exports = {
         console.log(`${dayjs()}: Scheduler on.`);
         const guild = client.guilds.cache.get(guildId);
         await redeemableSchedule(client, guild);
+        await redeemableScheduleRemoval(client, guild);
 
     }, redeemableSchedule
 
@@ -99,7 +100,7 @@ async function redeemableSchedule(client, guild) {
                                     // tell winner
                                     await winnerEmbed(member, channel, guild, gameName, redeemableType, DlcName, ImageLink, giveawayDate, postedAnnouncementMessage, platform, winnerMember, key);
                                     // schedule remove date
-                                    return await redeemableScheduleRemoval(client, removeDate, channel);
+                                    return await redeemableScheduleRemoval(client, guild);
                                 } catch (e) {
                                     console.error(e)
                                 }
@@ -113,18 +114,26 @@ async function redeemableSchedule(client, guild) {
 }
 
 // scheduler to remove redeemable
-async function redeemableScheduleRemoval(client, removeDate, channel) {
+async function redeemableScheduleRemoval(client, guild) {
     console.log(`${dayjs()}: Redeemable removal is initiated.`)
-    let dateSplit = removeDate.split("/")
-    const date = new Date(dateSplit[0], dateSplit[1] - 1, dateSplit[2], dateSplit[3], dateSplit[4]);
-    const job = await schedule.scheduleJob(date, async function () {
-        try {
-            // schedule remove date
-            await channel.delete()
-                .then()
-                .catch();
-        } catch (e) {
-            console.error(e)
+    database.query("SELECT * FROM redeemable", async function (err, result, fields) {
+        if (err) throw err;
+        for (let i in result.length) {
+            const removeDate = result[i].removeDate;
+            const channelId = result[i].publishedChannelId;
+            const channel = guild.channels.cache.get(channelId);
+            let dateSplit = removeDate.split("/")
+            const date = new Date(dateSplit[0], dateSplit[1] - 1, dateSplit[2], dateSplit[3], dateSplit[4]);
+            const job = await schedule.scheduleJob(date, async function () {
+                try {
+                    // schedule remove date
+                    await channel.delete()
+                        .then()
+                        .catch();
+                } catch (e) {
+                    console.error(e)
+                }
+            });
         }
     });
 }
