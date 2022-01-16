@@ -92,7 +92,7 @@ async function redeemableConfirmation(member, channel, guild, messageId, client)
                 const redeemableTypeA = result.rows[i].redeemableType;
                 // check if DLC or not DLC
                 // it's a DLC
-                if (redeemableTypeA === "1") {
+                if (redeemableTypeA === 1) {
                     // loop
                     for (let i = 1; i <= 5; i++) {
                         const filter = m => m.author.id === member.id && m.channel.id === channel.id;
@@ -202,7 +202,7 @@ async function redeemableConfirmation(member, channel, guild, messageId, client)
                     return false;
                 }
                 // it's a full game
-                else if (redeemableTypeA === "2") {
+                else if (redeemableTypeA === 2) {
                     // loop
                     for (let i = 1; i <= 5; i++) {
                         const filter = m => m.author.id === member.id && m.channel.id === channel.id;
@@ -315,7 +315,7 @@ async function confirmationEmbed(channel, gameName, mention, redeemableType, Dlc
     const dateSplit = dayjsDate.split("/");
     const date = new Date(dateSplit[0], dateSplit[1] - 1, dateSplit[2], dateSplit[3], dateSplit[4]);
 
-    if (redeemableType === "1") {
+    if (redeemableType === 1) {
         if (imageLink === "None") {
             const debug = new MessageEmbed()
                 .setColor("#3288de")
@@ -354,7 +354,7 @@ async function confirmationEmbed(channel, gameName, mention, redeemableType, Dlc
                 .setFooter(`${function_name} ${version}`);
             await channel.send({embeds: [debug]});
         }
-    } else if (redeemableType === "2") {
+    } else if (redeemableType === 2) {
         if (imageLink === "None") {
             const debug = new MessageEmbed()
                 .setColor("#3288de")
@@ -406,7 +406,7 @@ async function publishRedeemable(member, channel, guild, gameName, mention, rede
     const title = `🎁 GIVEAWAY ${gameName}`
     let textChannel = await eventCategory.createChannel(`${title}`, {type: "GUILD_TEXT", position: 3});
 
-    await pool.query(`UPDATE "redeemable" SET "publishedChannelId" = $1 WHERE messageId = $2`, [textChannel.id, messageId]);
+    await pool.query(`UPDATE "redeemable" SET "publishedChannelId" = $1 WHERE "messageId" = $2`, [textChannel.id, messageId]);
 
     /// embed message here
     const publishedMessage = await publishedEmbed(member, textChannel, guild, gameName, mention, redeemableType, DlcName, ImageLink, date, messageId, platform);
@@ -435,12 +435,12 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
     const giveawayDate = dayjs([dateArray[0], dateArray[1]-1, dateArray[2], dateArray[3], dateArray[4]]).format("ddd D MMM HH:mm");
 
     // is a DLC
-    if (redeemableType === "1") {
+    if (redeemableType === 1) {
         // does have an image
         if (ImageLink !== "None") {
             const debug = new MessageEmbed()
                 .setColor("#a73bd7")
-                .setTitle(`${gameName} DLC (${DlcName}) GIVEAWAY @${giveawayDate} CET`)
+                .setTitle(`${gameName} DLC (${DlcName}) GIVEAWAY @${giveawayDate} GMT`)
                 .setThumbnail('https://i.imgur.com/BOUt2gY.png')
                 .setDescription(`👏 **${member.username}#${member.discriminator}** is giving away a DLC/Expansion Pack for **${gameName}.**` +
                 `\n\nℹ️ Supported platform: **${platform}**` +
@@ -456,7 +456,7 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
             // does not have an image
             const debug = new MessageEmbed()
                 .setColor("#a73bd7")
-                .setTitle(`${gameName} DLC (${DlcName}) GIVEAWAY @${giveawayDate} CET`)
+                .setTitle(`${gameName} DLC (${DlcName}) GIVEAWAY @${giveawayDate} GMT`)
                 .setThumbnail('https://i.imgur.com/BOUt2gY.png')
                 .setDescription(`👏 **${member.username}#${member.discriminator}** is giving away a DLC/Expansion Pack for **${gameName}.**` +
                     `\n\nℹ️ Supported platform: **${platform}**` +
@@ -468,13 +468,13 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
             await pool.query(`UPDATE "redeemable" SET "publishedMessageId" = $1 WHERE "messageId" = $2`, [publishedMessage.id, messageId]);
             return publishedMessage;
         }
-    } else if (redeemableType === "2") {
+    } else if (redeemableType === 2) {
         // full game
         // does have an image
         if (ImageLink !== "None") {
             const debug = new MessageEmbed()
                 .setColor("#a73bd7")
-                .setTitle(`${gameName} GIVEAWAY @${giveawayDate} CET`)
+                .setTitle(`${gameName} GIVEAWAY @${giveawayDate} GMT`)
                 .setThumbnail('https://i.imgur.com/BOUt2gY.png')
                 .setDescription(`👏 **${member.username}#${member.discriminator}** is giving away a full game copy of **${gameName}.**` +
                     `\n\nℹ️ Supported platform: **${platform}**` +
@@ -490,7 +490,7 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
             // does not have an image
             const debug = new MessageEmbed()
                 .setColor("#a73bd7")
-                .setTitle(`${gameName} GIVEAWAY @${giveawayDate} CET`)
+                .setTitle(`${gameName} GIVEAWAY @${giveawayDate} GMT`)
                 .setThumbnail('https://i.imgur.com/BOUt2gY.png')
                 .setDescription(`👏 **${member.username}#${member.discriminator}** is giving away a full game copy of **${gameName}.**` +
                     `\n\nℹ️ Supported platform: **${platform}**` +
