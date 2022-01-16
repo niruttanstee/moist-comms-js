@@ -16,7 +16,7 @@
     "mysql": "^2.18.1",
     "node-schedule": "^2.1.0",
     "pg": "^8.7.1",
-    "dotenv-expand": "^5.1.0"
+    "dotenv": "^8.2.0"
   },
   "devDependencies": {
     "ascii-table": "^0.0.9",
