@@ -1,4 +1,6 @@
 const fs = require('fs');
+require('dotenv').config()
+const token = process.env.token;
 const dayjs = require("dayjs");
 const { Client, Collection, Intents } = require('discord.js');
 // const { token } = require('./config.json');
@@ -50,4 +52,4 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-client.login(process.env.token);
+client.login(token);

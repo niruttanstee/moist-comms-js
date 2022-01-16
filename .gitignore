@@ -2,3 +2,4 @@ config.json
 database.json
 guild.json
 test
+.env

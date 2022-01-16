@@ -27,11 +27,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('setup')
-                .setDescription('Setup temporary channel.'))
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('commands')
-                .setDescription('All available commands for temporary channel.')),
+                .setDescription('Setup temporary channel.')),
 
     async execute(interaction) {
 
@@ -44,9 +40,6 @@ module.exports = {
         if (interaction.options.getSubcommand() === 'setup') {
             console.log(`${dayjs()}: ${member.displayName} initiated tempchannel setup.`);
             await startup(channel, guild, member, interaction);
-        } else if (interaction.options.getSubcommand() === 'commands') {
-            console.log(`${dayjs()}: ${member.displayName} initiated tempchannel commands.`);
-            return await allCommands(interaction);
         }
         // below are all function exports
     }, setupTempChannel, autoSetup

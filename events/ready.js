@@ -10,12 +10,6 @@ module.exports = {
         console.log(`Bot is running`);
         console.log(`${dayjs()}: Logged in as ${client.user.tag}.`);
 
-
-        // pool.query(`SELECT * FROM "temporaryChannelProperties"`, async function (err, result, fields) {
-        //     console.log(result.rows.length)
-        //     if (err) ;
-        // });
-
         const allGuilds = client.guilds;
         await allGuilds.fetch()
             .then(async value => {

@@ -3,6 +3,7 @@
 *   there. The channel will take properties from the parameter within the pool.
 */
 const dayjs = require("dayjs");
+
 const { pool } = require("../db");
 const { MessageEmbed } = require("discord.js");
 const function_name = "RapidShard | Temporary Channel"
@@ -158,7 +159,7 @@ async function temporaryChannelStartMessage(textChannel, member){
         .setColor("#3288de")
         .setTitle(`${member.displayName}'s Room`)
         .setDescription(`<:ok:865288784618717207> <@${member.id}> this is your temporary text channel, when your temporary voice channel is empty and gets deleted, this will also be deleted.\n\nFind out all features of temporary channel:`
-            + "```/tempchannel commands```")
+            + "```/channel commands```")
         .setFooter(`${function_name} ${version}`);
     await textChannel.send({embeds: [startEmbed]});
 }
