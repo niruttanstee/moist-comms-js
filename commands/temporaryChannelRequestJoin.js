@@ -108,12 +108,7 @@ async function requestSend(owner, member, roleId, textChannelId, voiceChannelId,
             if (result.rows[i].roleId === roleId && result.rows[i].channelOwnerId === owner.id && result.rows[i].requesterId === member.id && result.rows[i].status === 1) {
                 await senderTimeoutEmbed(owner, interaction, embedSender)
                 await receiverTimeoutEmbed(member, interaction, embedReceiver)
-
-                let sql = `DELETE FROM "requestJoinChannel" WHERE roleId = ${roleId}`;
-                pool.query(sql, function (err, result) {
-                    if (err) throw err;
-                });
-                console.log(`${dayjs()}: 1 pending request removed.`);
+                pool.query(`DELETE FROM "requestJoinChannel" WHERE "roleId" = $1`, [roleId,]);
             }
         }
     });

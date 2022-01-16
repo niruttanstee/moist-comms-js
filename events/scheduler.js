@@ -1,35 +1,20 @@
 const dayjs = require("dayjs");
 const schedule = require('node-schedule');
-
 const arraySupport = require("dayjs/plugin/arraySupport");
-const mysql = require("mysql");
-// const {database_host, port, database_username, database_password, database_name} = require("../database.json");
+const { pool } = require("../db");
 const {MessageEmbed} = require("discord.js");
 dayjs.extend(arraySupport);
 const guildId = "860934544693919744";
-
-
 const function_name = "RapidShard | Redeemable"
 const version = 0.1;
-
-// // database connection
-// let database = mysql.createConnection({
-//     host: database_host,
-//     port: port,
-//     user: database_username,
-//     password: database_password,
-//     database: database_name
-// });
-
-
 
 module.exports = {
     name: 'ready',
     once: true,
     async execute(client) {
         const guild = client.guilds.cache.get(guildId);
-        // await redeemableSchedule(client, guild);
-        // await redeemableScheduleRemoval(client, guild);
+        await redeemableSchedule(client, guild);
+        await redeemableScheduleRemoval(client, guild);
 
     }, redeemableSchedule
 
@@ -37,23 +22,23 @@ module.exports = {
 
 // scheduler
 async function redeemableSchedule(client, guild) {
-    database.query("SELECT * FROM redeemable", async function (err, result, fields) {
+    pool.query(`SELECT * FROM "redeemable"`, async function (err, result, fields) {
         if (err) throw err;
-        for (let i = 0; i < result.length; i++) {
-            const messageId = result[i].messageId;
-            let giveawayDate = result[i].date;
+        for (let i = 0; i < result.rows.length; i++) {
+            const messageId = result.rows[i].messageId;
+            let giveawayDate = result.rows[i].date;
             let dateSplit = giveawayDate.split("/")
-            let alreadyWinner = result[i].winner;
+            let alreadyWinner = result.rows[i].winner;
             if (alreadyWinner == null) {
                 const date = new Date(dateSplit[0], dateSplit[1] - 1, dateSplit[2], dateSplit[3], dateSplit[4]);
                 const job = await schedule.scheduleJob(date, async function () {
-                    database.query("SELECT * FROM redeemable", async function (err, result, fields) {
+                    pool.query(`SELECT * FROM "redeemable"`, async function (err, result, fields) {
                         if (err) throw err;
-                        for (let i = 0; i < result.length; i++) {
-                            if (messageId === result[i].messageId) {
-                                const channelId = result[i].publishedChannelId;
+                        for (let i = 0; i < result.rows.length; i++) {
+                            if (messageId === result.rows[i].messageId) {
+                                const channelId = result.rows[i].publishedChannelId;
                                 const channel = await guild.channels.fetch(channelId);
-                                const publishedMessageId = result[i].publishedMessageId;
+                                const publishedMessageId = result.rows[i].publishedMessageId;
                                 const postedAnnouncementMessage = await channel.messages.fetch(publishedMessageId)
                                     .then(message => {
                                         return message
@@ -62,16 +47,16 @@ async function redeemableSchedule(client, guild) {
                                 await postedAnnouncementMessage.reactions.removeAll();
 
                                 // pick a winner
-                                const participants = (result[i].participants).split(",");
+                                const participants = (result.rows[i].participants).split(",");
 
-                                let member = guild.members.cache.get(result[i].ownerId);
-                                let gameName = result[i].gameName;
-                                let redeemableType = result[i].redeemableType;
-                                let DlcName = result[i].DlcName;
-                                let ImageLink = result[i].imageLink;
-                                let platform = result[i].platform;
-                                let key = result[i].skey;
-                                let removeDate = result[i].removeDate;
+                                let member = guild.members.cache.get(result.rows[i].ownerId);
+                                let gameName = result.rows[i].gameName;
+                                let redeemableType = result.rows[i].redeemableType;
+                                let DlcName = result.rows[i].DlcName;
+                                let ImageLink = result.rows[i].imageLink;
+                                let platform = result.rows[i].platform;
+                                let key = result.rows[i].skey;
+                                let removeDate = result.rows[i].removeDate;
                                 // remove reaction
                                 try {
                                     const winnerNum = Math.floor(Math.random() * participants.length);
@@ -82,11 +67,11 @@ async function redeemableSchedule(client, guild) {
                                         })
                                         .catch(console.error);
 
-                                    let messageId = result[i].messageId;
+                                    let messageId = result.rows[i].messageId;
 
-                                    // update database
+                                    // update pool
                                     let sql = `UPDATE redeemable SET winner = ${winnerMember.user.id} WHERE messageId = ${messageId}`;
-                                    database.query(sql, function (err, result) {
+                                    pool.query(sql, function (err, result) {
                                             if (err) throw err;
                                             console.log(`${dayjs()}: winner updated.`);
                                         }
@@ -113,11 +98,11 @@ async function redeemableSchedule(client, guild) {
 
 // scheduler to remove redeemable
 async function redeemableScheduleRemoval(client, guild) {
-    database.query("SELECT * FROM redeemable", async function (err, result, fields) {
+    pool.query(`SELECT * FROM "redeemable"`, async function (err, result, fields) {
         if (err) throw err;
-        for (let i = 0; i < result.length; i++) {
-            let endDate = result[i].removeDate;
-            let channelId = result[i].publishedChannelId;
+        for (let i = 0; i < result.rows.length; i++) {
+            let endDate = result.rows[i].removeDate;
+            let channelId = result.rows[i].publishedChannelId;
             const channel = guild.channels.fetch(channelId)
                 .then(async channel => {
                     let dateSplit = endDate.split("/")

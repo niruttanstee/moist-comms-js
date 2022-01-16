@@ -10,26 +10,10 @@ const wait = require('util').promisify(setTimeout);
 const dayjs = require('dayjs');
 const toArray = require('dayjs/plugin/toArray')
 dayjs.extend(toArray)
-
-const mysql = require('mysql');
-
+const { pool } = require("../db");
 const function_name = "RapidShard | Redeemable"
 const version = 0.1;
 
-// const {database_host, port, database_username, database_password, database_name} = require("../database.json");
-
-// database connection
-// let database = mysql.createConnection({
-//     host: database_host,
-//     port: port,
-//     user: database_username,
-//     password: database_password,
-//     database: database_name
-// });
-
-// database.connect(function (err) {
-//     if (err) throw err;
-// });
 
 module.exports = {
 
@@ -66,7 +50,7 @@ module.exports = {
                                 if (date) {
                                     const memberId = member.id;
                                     let sql = `INSERT INTO redeemable VALUES (${messageId}, ${memberId}, '${gameName}', ${mention}, ${redeemableType}, '${DlcName}', '${imageLink}', '${date[0]}', null, ${channel.id}, null, null, null, null, '${platform}', '${date[1]}');`
-                                    database.query(sql, function (err, result) {
+                                    pool.query(sql, function (err, result) {
                                         if (err) throw err;
                                     });
                                     console.log(`${dayjs()}: 1 record inserted.`);
@@ -82,7 +66,7 @@ module.exports = {
                             if (date) {
                                 const memberId = member.id;
                                 let sql = `INSERT INTO redeemable VALUES (${messageId}, ${memberId}, '${gameName}', ${mention}, ${redeemableType}, null, '${imageLink}', '${date[0]}', null, ${channel.id}, null, null, null, null, '${platform}', '${date[1]}');`
-                                database.query(sql, function (err, result) {
+                                pool.query(sql, function (err, result) {
                                     if (err) throw err;
                                 });
                                 console.log(`${dayjs()}: 1 record inserted.`);
@@ -372,15 +356,12 @@ async function getSerialKey(member, channel, guild, messageId) {
     await getSerialKeyDMEmbed(member);
     await wait(120000);
     //Time out process if serial key not given.
-    database.query("SELECT * FROM redeemable", async function (err, result, fields) {
+    pool.query(`SELECT * FROM "redeemable"`, async function (err, result, fields) {
         if (err) throw err;
-        for (let i = 0; i < result.length; i++) {
-            if (result[i].messageId === messageId && result[i].ownerId === member.id && result[i].skey === null) {
+        for (let i = 0; i < result.rows.length; i++) {
+            if (result.rows[i].messageId === messageId && result.rows[i].ownerId === member.id && result.rows[i].skey === null) {
                 await error(member, "Process has timed out.")
-                let sql = `DELETE FROM redeemable WHERE messageId = ${messageId}`;
-                database.query(sql, function (err, result) {
-                    if (err) throw err;
-                });
+                pool.query(`DELETE FROM "redeemable" WHERE "messageId" = $1`, [messageId,]);
                 console.log(`${dayjs()}: 1 redeemable removed.`);
             }
         }
@@ -530,14 +511,11 @@ async function hasSymbol(myString) {
 // remover of event
 async function eventRemove(messageId) {
     try{
-        database.query("SELECT * FROM redeemable", async function (err, result, fields) {
+        pool.query(`SELECT * FROM "redeemable"`, async function (err, result, fields) {
             if (err) throw err;
-            for (let i = 0; i < result.length; i++) {
-                if (result[i].messageId === messageId) {
-                    let sql = `DELETE FROM redeemable WHERE messageId = ${messageId}`;
-                    database.query(sql, function (err, result) {
-                        if (err) throw err;
-                    });
+            for (let i = 0; i < result.rows.length; i++) {
+                if (result.rows[i].messageId === messageId) {
+                    pool.query(`DELETE FROM "redeemable" WHERE "messageId" = $1`, [messageId,]);
                     console.log(`${dayjs()}: 1 redeemable removed.`);
                 }
             }
@@ -548,32 +526,22 @@ async function eventRemove(messageId) {
 }
 // function for adding user to the redeemable event
 async function addParticipant(message, user, channel){
-    // check if participant not already in database
-    database.query("SELECT * FROM redeemable", async function (err, result, fields) {
+    // check if participant not already in pool
+    pool.query(`SELECT * FROM "redeemable"`, async function (err, result, fields) {
         if (err) throw err;
-        for (let i = 0; i < result.length; i++) {
-            if (result[i].publishedMessageId === message.message.id && result[i].publishedChannelId === `${channel.id}`) {
-                const dateArray = result[i].date.split("/");
+        for (let i = 0; i < result.rows.length; i++) {
+            if (result.rows[i].publishedMessageId === message.message.id && result.rows[i].publishedChannelId === `${channel.id}`) {
+                const dateArray = result.rows[i].date.split("/");
                 const date = dayjs([dateArray[0], dateArray[1]-1, dateArray[2], dateArray[3], dateArray[4]]).format("ddd D MMM HH:mm");
                 // if there are no other participants
-                if (result[i].participants === null) {
-                    let sql = `UPDATE redeemable SET participants = "${user.id}" WHERE publishedMessageId = ${message.message.id}`;
-                    database.query(sql, function (err, result) {
-                            if (err) throw err;
-                            console.log(`${dayjs()}: participants updated.`);
-                        }
-                    );
-                    return await participantEmbed(user, `${user.username}, you're now registered for ${result[i].gameName} giveaway.`, `👉 Find more information about it here:\n <#${result[i].publishedChannelId}>\n\n🍪 Be on the lookout for a winner's message on **${date} CET.**`)
+                if (result.rows[i].participants === null) {
+                    await pool.query(`UPDATE "redeemable" SET "participants" = $1 WHERE "publishedMessageId" = $2`, [user.id, message.message.id,]);
+                    return await participantEmbed(user, `${user.username}, you're now registered for ${result.rows[i].gameName} giveaway.`, `👉 Find more information about it here:\n <#${result.rows[i].publishedChannelId}>\n\n🍪 Be on the lookout for a winner's message on **${date} CET.**`)
                 } else {
-                    const participantsArray = result[i].participants.split(",");
+                    const participantsArray = result.rows[i].participants.split(",");
                     participantsArray.push(`${user.id}`);
-                    let sql = `UPDATE redeemable SET participants = '${participantsArray.toString()}' WHERE publishedMessageId = ${message.message.id}`;
-                    database.query(sql, function (err, result) {
-                            if (err) throw err;
-                            console.log(`${dayjs()}: participants updated.`);
-                        }
-                    );
-                    return await participantEmbed(user, `${user.username}, you're now registered for ${result[i].gameName} giveaway.`, `👉 Find more information about it here:\n <#${result[i].publishedChannelId}>\n\n🍪 Be on the lookout for a winner's message on **${date} CET.**`)
+                    await pool.query(`UPDATE "redeemable" SET "participants" = $1 WHERE "publishedMessageId" = $2`, [participantsArray.toString(), message.message.id,]);
+                    return await participantEmbed(user, `${user.username}, you're now registered for ${result.rows[i].gameName} giveaway.`, `👉 Find more information about it here:\n <#${result.rows[i].publishedChannelId}>\n\n🍪 Be on the lookout for a winner's message on **${date} CET.**`)
                 }
             }
         }
@@ -581,34 +549,24 @@ async function addParticipant(message, user, channel){
 }
 // function for adding user to the redeemable event
 async function removeParticipant(message, user, channel){
-    // check if participant not already in database
-    database.query("SELECT * FROM redeemable", async function (err, result, fields) {
+    // check if participant not already in pool
+    pool.query(`SELECT * FROM "redeemable"`, async function (err, result, fields) {
         if (err) throw err;
-        for (let i = 0; i < result.length; i++) {
-            if (result[i].publishedMessageId === message.message.id && result[i].publishedChannelId === `${channel.id}`) {
+        for (let i = 0; i < result.rows.length; i++) {
+            if (result.rows[i].publishedMessageId === message.message.id && result.rows[i].publishedChannelId === `${channel.id}`) {
                 // remove participants function
-                const gameName = result[i].gameName;
+                const gameName = result.rows[i].gameName;
                 try {
-                    const participants = result[i].participants.split(",");
+                    const participants = result.rows[i].participants.split(",");
                     // if this is the only participant
                     if (participants.length <= 1) {
-                        let sql = `UPDATE redeemable SET participants = null WHERE publishedMessageId = ${message.message.id}`;
-                        database.query(sql, function (err, result) {
-                                if (err) throw err;
-                                console.log(`${dayjs()}: participants updated.`);
-                            }
-                        );
+                        await pool.query(`UPDATE "redeemable" SET "participants" = $1 WHERE "publishedMessageId" = $2`, [null, message.message.id,]);
                         return await participantEmbed(user, `You're no longer registered for ${gameName} giveaway.`, "😀 Changed your mind? Simply react to the event again.")
                     } else {
                         for (let i = 0; i <= participants.length; i++) {
                             if (participants[i] === `${user.id}`) {
                                 participants.splice(i, 1);
-                                let sql = `UPDATE redeemable SET participants = "${participants}" WHERE publishedMessageId = ${message.message.id}`;
-                                database.query(sql, function (err, result) {
-                                        if (err) throw err;
-                                        console.log(`${dayjs()}: participants updated.`);
-                                    }
-                                );
+                                await pool.query(`UPDATE "redeemable" SET "participants" = $1 WHERE "publishedMessageId" = $2`, [participants, message.message.id,]);
                                 return await participantEmbed(user, `You're no longer registered for ${gameName} giveaway.`, "😀 Changed your mind? Simply react to the event again.")
                             }
                         }

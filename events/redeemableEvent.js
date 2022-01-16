@@ -1,35 +1,22 @@
 const { MessageEmbed} = require("discord.js");
 const wait = require('util').promisify(setTimeout);
 const dayjs = require('dayjs');
-const mysql = require('mysql');
-const {database_host, port, database_username, database_password, database_name} = require("../database.json");
+const { pool } = require("../db");
+
 
 
 
 const {getGameName, getMention, checkRedeemableType, getDlcName, getImage, getDate, getSerialKey, eventRemove, getPlatform} = require("../commands/redeemable");
 const {redeemableSchedule} = require("../events/scheduler")
-
-const schedule = require('node-schedule');
 const eventCategoryId = "870350901288788039";
-
-
+const { pool } = require("../db");
 const arraySupport = require("dayjs/plugin/arraySupport");
 dayjs.extend(arraySupport);
 
 const function_name = "RapidShard | Redeemable"
 const version = 0.1;
 
-const rapidShardChannelId = "908386507633610792";
 const guildId = "860934544693919744";
-
-// database connection
-// let database = mysql.createConnection({
-//     host: database_host,
-//     port: port,
-//     user: database_username,
-//     password: database_password,
-//     database: database_name
-// });
 
 module.exports = {
     name: 'messageCreate',
@@ -38,10 +25,10 @@ module.exports = {
         //check if message is a dm for the redeemable Event
         if (message.guildId === null && message.author.bot === false) {
             try {
-                database.query("SELECT * FROM redeemable", async function (err, result, fields) {
+                pool.query(`SELECT * FROM "redeemable"`, async function (err, result, fields) {
                     if (err) throw err;
-                    for (let i = 0; i < result.length; i++) {
-                        if (result[i].ownerId === message.author.id && result[i].skey === null) {
+                    for (let i = 0; i < result.rows.length; i++) {
+                        if (result.rows[i].ownerId === message.author.id && result.rows[i].skey === null) {
 
                             const member = message.author;
 
@@ -51,19 +38,14 @@ module.exports = {
                             }
 
                             if (!await hasSymbol(message.content)) {
-                                let sql = `UPDATE redeemable SET skey = '${message.content}'
-                                        WHERE ownerId = ${message.author.id} AND messageId = ${result[i].messageId}`;
-                                database.query(sql, function (err, result) {
-                                        if (err) throw err;
-                                        console.log(`${dayjs()}: skey inserted.`);
-                                    }
-                                );
+                                await pool.query(`UPDATE "redeemable" SET "skey" = $1 WHERE "ownerId" = $2 AND "messageId" = $3`,
+                                    [message.content, message.author.id, result.rows[i].messageId,]);
                                 await success(member, `Confirmed, ${message.content}`)
                                 await backToChannel(member, `Please continue by going back to the Moist Comms channel.`);
                                 const client = message.client;
                                 const guild = await client.guilds.fetch(guildId);
-                                const channel = await guild.channels.cache.get(result[i].channelId);
-                                const messageId = result[i].messageId;
+                                const channel = await guild.channels.cache.get(result.rows[i].channelId);
+                                const messageId = result.rows[i].messageId;
                                 return redeemableConfirmation(member, channel, guild, messageId, client);
                             } else {
                                 return error(member, "This symbol is not detected in a typical serial key.")
@@ -98,21 +80,21 @@ async function backToChannel(channel, message) {
 async function redeemableConfirmation(member, channel, guild, messageId, client) {
 
     await channel.send(`${member}`);
-    database.query("SELECT * FROM redeemable", async function (err, result, fields) {
+    pool.query(`SELECT * FROM "redeemable"`, async function (err, result, fields) {
         if (err) throw err;
-        for (let i = 0; i < result.length; i++) {
-            if (result[i].messageId === messageId) {
-                const mentionRole = await guild.roles.fetch(result[i].mention);
+        for (let i = 0; i < result.rows.length; i++) {
+            if (result.rows[i].messageId === messageId) {
+                const mentionRole = await guild.roles.fetch(result.rows[i].mention);
 
-                const gameName = result[i].gameName;
+                const gameName = result.rows[i].gameName;
                 const mention = mentionRole;
-                const redeemableType = result[i].redeemableType;
-                const DlcName = result[i].DlcName;
-                const imageLink = result[i].imageLink;
-                const date = result[i].date;
-                const platform = result[i].platform;
+                const redeemableType = result.rows[i].redeemableType;
+                const DlcName = result.rows[i].DlcName;
+                const imageLink = result.rows[i].imageLink;
+                const date = result.rows[i].date;
+                const platform = result.rows[i].platform;
                 await confirmationEmbed(channel, gameName, mentionRole.name, redeemableType, DlcName, imageLink, date, platform);
-                const redeemableTypeA = result[i].redeemableType;
+                const redeemableTypeA = result.rows[i].redeemableType;
                 // check if DLC or not DLC
                 // it's a DLC
                 if (redeemableTypeA === "1") {
@@ -135,12 +117,7 @@ async function redeemableConfirmation(member, channel, guild, messageId, client)
                                     case 1:
                                         const gameName = await getGameName(member, channel, guild);
                                         if (gameName) {
-                                            let sql = `UPDATE redeemable SET gameName = '${gameName}' WHERE messageId = ${messageId}`;
-                                            database.query(sql, function (err, result) {
-                                                    if (err) throw err;
-                                                    console.log(`${dayjs()}: gameName updated.`);
-                                                }
-                                            );
+                                            await pool.query(`UPDATE "redeemable" SET "gameName" = $1 WHERE "messageId" = $2`, [gameName, messageId,])
                                         } else {
                                             await eventRemove(messageId);
                                         }
@@ -148,12 +125,7 @@ async function redeemableConfirmation(member, channel, guild, messageId, client)
                                     case 2:
                                         const mention = await getMention(member, channel, guild);
                                         if (mention) {
-                                            let sql = `UPDATE redeemable SET mention = ${mention} WHERE messageId = ${messageId}`;
-                                            database.query(sql, function (err, result) {
-                                                    if (err) throw err;
-                                                    console.log(`${dayjs()}: mention updated.`);
-                                                }
-                                            );
+                                            await pool.query(`UPDATE "redeemable" SET "mention" = $1 WHERE "messageId" = $2`, [mention, messageId,]);
                                         } else {
                                             await eventRemove(messageId);
                                         }
@@ -161,12 +133,7 @@ async function redeemableConfirmation(member, channel, guild, messageId, client)
                                     case 3:
                                         const platform = await getPlatform(member, channel, guild);
                                         if (platform) {
-                                            let sql = `UPDATE redeemable SET platform = '${platform}' WHERE messageId = ${messageId}`;
-                                            database.query(sql, function (err, result) {
-                                                    if (err) throw err;
-                                                    console.log(`${dayjs()}: platform updated.`);
-                                                }
-                                            );
+                                            await pool.query(`UPDATE "redeemable" SET "platform" = $1 WHERE "messageId" = $2`, [platform, messageId,]);
                                             return redeemableConfirmation(member, channel, guild, messageId);
                                         } else {
                                             await eventRemove(messageId);
@@ -177,23 +144,15 @@ async function redeemableConfirmation(member, channel, guild, messageId, client)
                                         if (redeemableType === 1) {
                                             const DlcName = await getDlcName(member, channel, guild);
                                             if (DlcName) {
-                                                let sql = `UPDATE redeemable SET redeemableType = ${redeemableType}, DlcName = '${DlcName}' WHERE messageId = ${messageId}`;
-                                                database.query(sql, function (err, result) {
-                                                        if (err) throw err;
-                                                        console.log(`${dayjs()}: redeemableType updated.`);
-                                                    }
-                                                );
+                                                await pool.query(`UPDATE "redeemable" SET "redeemableType" = $1, "DlcName" = $2 WHERE "messageId" = $3`,
+                                                    [redeemableType, DlcName, messageId,]);
                                             } else {
                                                 await eventRemove(messageId);
                                             }
                                             return redeemableConfirmation(member, channel, guild, messageId);
                                         } else if (redeemableType === 2) {
-                                            let sql = `UPDATE redeemable SET redeemableType = ${redeemableType},  DlcName = null WHERE messageId = ${messageId}`;
-                                            database.query(sql, function (err, result) {
-                                                    if (err) throw err;
-                                                    console.log(`${dayjs()}: redeemableType updated.`);
-                                                }
-                                            );
+                                            await pool.query(`UPDATE "redeemable" SET "redeemableType" = $1, "DlcName" = $2 WHERE "messageId" = $3`,
+                                                [redeemableType, null, messageId,]);
                                             return redeemableConfirmation(member, channel, guild, messageId);
                                         } else {
                                             await eventRemove(messageId);
@@ -202,12 +161,8 @@ async function redeemableConfirmation(member, channel, guild, messageId, client)
                                     case 5:
                                         const DlcName = await getDlcName(member, channel, guild);
                                         if (DlcName) {
-                                            let sql = `UPDATE redeemable SET DlcName = '${DlcName}' WHERE messageId = ${messageId}`;
-                                            database.query(sql, function (err, result) {
-                                                    if (err) throw err;
-                                                    console.log(`${dayjs()}: redeemableType updated.`);
-                                                }
-                                            );
+                                            await pool.query(`UPDATE "redeemable" SET "DlcName" = $1 WHERE "messageId" = $2`,
+                                                [DlcName, messageId,]);
                                         } else {
                                             await eventRemove(messageId);
                                         }
@@ -215,33 +170,20 @@ async function redeemableConfirmation(member, channel, guild, messageId, client)
                                     case 6:
                                         const date = await getDate(member, channel, guild)
                                         if (date) {
-                                            let sql = `UPDATE redeemable SET date = '${date}' WHERE messageId = ${messageId}`;
-                                            database.query(sql, function (err, result) {
-                                                    if (err) throw err;
-                                                    console.log(`${dayjs()}: date updated.`);
-                                                }
-                                            );
+                                            await pool.query(`UPDATE "redeemable" SET "date" = $1 WHERE "messageId" = $2`,
+                                                [date, messageId]);
                                         } else {
                                             await eventRemove(messageId);
                                         }
                                         return redeemableConfirmation(member, channel, guild, messageId);
                                     case 7:
-                                        let sql = `UPDATE redeemable SET skey = null WHERE messageId = ${messageId}`;
-                                        database.query(sql, function (err, result) {
-                                                if (err) throw err;
-                                                console.log(`${dayjs()}: date updated.`);
-                                            }
-                                        );
+                                        await pool.query(`UPDATE "redeemable" SET "skey" = $1 WHERE "messageId" = $2`,
+                                            [null, messageId]);
                                         return await getSerialKey(member, channel, guild);
                                     case 8:
                                         const imageLink = await getImage(member, channel, guild);
                                         if (imageLink) {
-                                            let sql = `UPDATE redeemable SET imageLink = '${imageLink}' WHERE messageId = ${messageId}`;
-                                            database.query(sql, function (err, result) {
-                                                    if (err) throw err;
-                                                    console.log(`${dayjs()}: date updated.`);
-                                                }
-                                            );
+                                            await pool.query(`UPDATE "redeemable" SET "imageLink" = $1 WHERE messageId = $2`, [imageLink, messageId]);
                                         } else {
                                             await eventRemove(messageId);
                                         }
@@ -285,12 +227,7 @@ async function redeemableConfirmation(member, channel, guild, messageId, client)
                                     case 1:
                                         const gameName = await getGameName(member, channel, guild);
                                         if (gameName) {
-                                            let sql = `UPDATE redeemable SET gameName = '${gameName}' WHERE messageId = ${messageId}`;
-                                            database.query(sql, function (err, result) {
-                                                    if (err) throw err;
-                                                    console.log(`${dayjs()}: gameName updated.`);
-                                                }
-                                            );
+                                            await pool.query(`UPDATE "redeemable" SET "gameName" = $1 WHERE "messageId" = $2`, [gameName, messageId,])
                                         } else {
                                             await eventRemove(messageId);
                                         }
@@ -298,12 +235,7 @@ async function redeemableConfirmation(member, channel, guild, messageId, client)
                                     case 2:
                                         const mention = await getMention(member, channel, guild);
                                         if (mention) {
-                                            let sql = `UPDATE redeemable SET mention = ${mention} WHERE messageId = ${messageId}`;
-                                            database.query(sql, function (err, result) {
-                                                    if (err) throw err;
-                                                    console.log(`${dayjs()}: mention updated.`);
-                                                }
-                                            );
+                                            await pool.query(`UPDATE "redeemable" SET "mention" = $1 WHERE "messageId" = $2`, [mention, messageId,]);
                                         } else {
                                             await eventRemove(messageId);
                                         }
@@ -311,12 +243,7 @@ async function redeemableConfirmation(member, channel, guild, messageId, client)
                                     case 3:
                                         const platform = await getPlatform(member, channel, guild);
                                         if (platform) {
-                                            let sql = `UPDATE redeemable SET platform = '${platform}' WHERE messageId = ${messageId}`;
-                                            database.query(sql, function (err, result) {
-                                                    if (err) throw err;
-                                                    console.log(`${dayjs()}: platform updated.`);
-                                                }
-                                            );
+                                            await pool.query(`UPDATE "redeemable" SET "platform" = $1 WHERE "messageId" = $2`, [platform, messageId,]);
                                             return redeemableConfirmation(member, channel, guild, messageId);
                                         } else {
                                             await eventRemove(messageId);
@@ -327,23 +254,15 @@ async function redeemableConfirmation(member, channel, guild, messageId, client)
                                         if (redeemableType === 1) {
                                             const DlcName = await getDlcName(member, channel, guild);
                                             if (DlcName) {
-                                                let sql = `UPDATE redeemable SET redeemableType = ${redeemableType}, DlcName = '${DlcName}' WHERE messageId = ${messageId}`;
-                                                database.query(sql, function (err, result) {
-                                                        if (err) throw err;
-                                                        console.log(`${dayjs()}: redeemableType updated.`);
-                                                    }
-                                                );
+                                                await pool.query(`UPDATE "redeemable" SET "redeemableType" = $1, "DlcName" = $2 WHERE "messageId" = $3`,
+                                                    [redeemableType, DlcName, messageId,]);
                                             } else {
                                                 await eventRemove(messageId);
                                             }
                                             return redeemableConfirmation(member, channel, guild, messageId);
                                         } else if (redeemableType === 2) {
-                                            let sql = `UPDATE redeemable SET redeemableType = ${redeemableType},  DlcName = null WHERE messageId = ${messageId}`;
-                                            database.query(sql, function (err, result) {
-                                                    if (err) throw err;
-                                                    console.log(`${dayjs()}: redeemableType updated.`);
-                                                }
-                                            );
+                                            await pool.query(`UPDATE "redeemable" SET "redeemableType" = $1, "DlcName" = $2 WHERE "messageId" = $3`,
+                                                [redeemableType, null, messageId,]);
                                             return redeemableConfirmation(member, channel, guild, messageId);
                                         } else {
                                             await eventRemove(messageId);
@@ -352,33 +271,21 @@ async function redeemableConfirmation(member, channel, guild, messageId, client)
                                     case 5:
                                         const date = await getDate(member, channel, guild)
                                         if (date) {
-                                            let sql = `UPDATE redeemable SET date = '${date}' WHERE messageId = ${messageId}`;
-                                            database.query(sql, function (err, result) {
-                                                    if (err) throw err;
-                                                    console.log(`${dayjs()}: date updated.`);
-                                                }
-                                            );
+                                            await pool.query(`UPDATE "redeemable" SET "date" = $1 WHERE "messageId" = $2`,
+                                                [date, messageId]);
                                         } else {
                                             await eventRemove(messageId);
                                         }
                                         return redeemableConfirmation(member, channel, guild, messageId);
                                     case 6:
+                                        await pool.query(`UPDATE "redeemable" SET "skey" = $1 WHERE "messageId" = $2`,
+                                            [null, messageId]);
                                         let sql = `UPDATE redeemable SET skey = null WHERE messageId = ${messageId}`;
-                                        database.query(sql, function (err, result) {
-                                                if (err) throw err;
-                                                console.log(`${dayjs()}: date updated.`);
-                                            }
-                                        );
                                         return await getSerialKey(member, channel, guild);
                                     case 7:
                                         const imageLink = await getImage(member, channel, guild);
                                         if (imageLink) {
-                                            let sql = `UPDATE redeemable SET imageLink = '${imageLink}' WHERE messageId = ${messageId}`;
-                                            database.query(sql, function (err, result) {
-                                                    if (err) throw err;
-                                                    console.log(`${dayjs()}: date updated.`);
-                                                }
-                                            );
+                                            await pool.query(`UPDATE "redeemable" SET "imageLink" = $1 WHERE messageId = $2`, [imageLink, messageId]);
                                         } else {
                                             await eventRemove(messageId);
                                         }
@@ -504,13 +411,7 @@ async function publishRedeemable(member, channel, guild, gameName, mention, rede
     const title = `🎁 GIVEAWAY ${gameName}`
     let textChannel = await eventCategory.createChannel(`${title}`, {type: "GUILD_TEXT", position: 3});
 
-
-    let sql = `UPDATE redeemable SET publishedChannelId = ${textChannel.id} WHERE messageId = ${messageId}`;
-    database.query(sql, function (err, result) {
-            if (err) throw err;
-            console.log(`${dayjs()}: published channel Id updated.`);
-        }
-    );
+    await pool.query(`UPDATE "redeemable" SET "publishedChannelId" = $1 WHERE messageId = $2`, [textChannel.id, messageId]);
 
     /// embed message here
     const publishedMessage = await publishedEmbed(member, textChannel, guild, gameName, mention, redeemableType, DlcName, ImageLink, date, messageId, platform);
@@ -554,12 +455,7 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
                 .setImage(`${ImageLink}`)
                 .setFooter(`${function_name} ${version}`);
             const publishedMessage = await textChannel.send({embeds: [debug]});
-            let sql = `UPDATE redeemable SET publishedMessageId = ${publishedMessage.id} WHERE messageId = ${messageId}`;
-            database.query(sql, function (err, result) {
-                    if (err) throw err;
-                    console.log(`${dayjs()}: published message inserted.`);
-                }
-            );
+            await pool.query(`UPDATE "redeemable" SET "publishedMessageId" = $1 WHERE "messageId" = $2`, [publishedMessage.id, messageId]);
             return publishedMessage;
         } else {
             // does not have an image
@@ -574,12 +470,7 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
                 .setFields({name: `_ _`,value: "```js\n"+`### AWAITING DRAW ###`+"```", inline: false})
                 .setFooter(`${function_name} ${version}`);
             const publishedMessage = await textChannel.send({embeds: [debug]});
-            let sql = `UPDATE redeemable SET publishedMessageId = ${publishedMessage.id} WHERE messageId = ${messageId}`;
-            database.query(sql, function (err, result) {
-                    if (err) throw err;
-                    console.log(`${dayjs()}: published message inserted.`);
-                }
-            );
+            await pool.query(`UPDATE "redeemable" SET "publishedMessageId" = $1 WHERE "messageId" = $2`, [publishedMessage.id, messageId]);
             return publishedMessage;
         }
     } else if (redeemableType === "2") {
@@ -598,12 +489,7 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
                 .setImage(`${ImageLink}`)
                 .setFooter(`${function_name} ${version}`);
             const publishedMessage = await textChannel.send({embeds: [debug]});
-            let sql = `UPDATE redeemable SET publishedMessageId = ${publishedMessage.id} WHERE messageId = ${messageId}`;
-            database.query(sql, function (err, result) {
-                    if (err) throw err;
-                    console.log(`${dayjs()}: published message inserted.`);
-                }
-            );
+            await pool.query(`UPDATE "redeemable" SET "publishedMessageId" = $1 WHERE "messageId" = $2`, [publishedMessage.id, messageId]);
             return publishedMessage;
         } else {
             // does not have an image
@@ -618,12 +504,7 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
                 .setFields({name: `_ _`,value: "```js\n"+`### AWAITING DRAW ###`+"```", inline: false})
                 .setFooter(`${function_name} ${version}`);
             const publishedMessage = await textChannel.send({embeds: [debug]});
-            let sql = `UPDATE redeemable SET publishedMessageId = ${publishedMessage.id} WHERE messageId = ${messageId}`;
-            database.query(sql, function (err, result) {
-                    if (err) throw err;
-                    console.log(`${dayjs()}: published message inserted.`);
-                }
-            );
+            await pool.query(`UPDATE "redeemable" SET "publishedMessageId" = $1 WHERE "messageId" = $2`, [publishedMessage.id, messageId]);
             return publishedMessage;
         }
     } else {
