@@ -1,5 +1,5 @@
 const dayjs = require("dayjs");
-const { pool } = require("/queries.js");
+const { pool } = require("../db");
 
 module.exports = {
     name: 'ready',
@@ -11,10 +11,12 @@ module.exports = {
         console.log(`${dayjs()}: Logged in as ${client.user.tag}.`);
 
         // test database is working
-        await pool.query(
-            "SELECT * FROM testTable");
-        console.log(res.rows);
-
+        pool.query("SELECT * FROM testTable", async function (err, result, fields) {
+            if (err) throw err;
+            for (result in result.length) {
+                console.log(result);
+            }
+        });
 
 
 

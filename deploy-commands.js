@@ -10,7 +10,7 @@ for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
     commands.push(command.data.toJSON());
 }
-const rest = new REST({ version: '9' }).setToken(process.env.token);
+const rest = new REST({ version: '9' }).setToken("OTA2NTg4NzI0NDA0NTU1Nzk2.YYa0iw.trlqK7S00ExSWyKqud9T-LPYbCA");
 
 rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
     .then(() => console.log('Successfully registered application commands.'))

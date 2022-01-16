@@ -18,9 +18,9 @@ const version = 0.2;
 //     database: database_name
 // });
 
-database.connect(function (err) {
-    if (err) throw err;
-});
+// database.connect(function (err) {
+//     if (err) throw err;
+// });
 
 module.exports = {
     name: 'voiceStateUpdate',
