@@ -48,7 +48,6 @@ async function redeemableSchedule(client, guild) {
 
                                 // pick a winner
                                 const participants = (result.rows[i].participants).split(",");
-
                                 let member = guild.members.cache.get(result.rows[i].ownerId);
                                 let gameName = result.rows[i].gameName;
                                 let redeemableType = result.rows[i].redeemableType;
@@ -70,13 +69,7 @@ async function redeemableSchedule(client, guild) {
                                     let messageId = result.rows[i].messageId;
 
                                     // update pool
-                                    let sql = `UPDATE redeemable SET winner = ${winnerMember.user.id} WHERE messageId = ${messageId}`;
-                                    pool.query(sql, function (err, result) {
-                                            if (err) throw err;
-                                            console.log(`${dayjs()}: winner updated.`);
-                                        }
-                                    );
-
+                                    await pool.query(`UPDATE "redeemable" SET "winner" = $1 WHERE messageId = $2`, [winnerMember.user.id], messageId,);
                                     // update published message embed
 
                                     await updateEmbedMessage(member, channel, guild, gameName, redeemableType, DlcName, ImageLink, giveawayDate, postedAnnouncementMessage, platform, winnerMember);
@@ -130,7 +123,7 @@ async function updateEmbedMessage(member, textChannel, guild, gameName, redeemab
     const giveawayDate = dayjs(date.split("/")).format("ddd D MMM HH:mm");
 
     // is a DLC
-    if (redeemableType === "1") {
+    if (redeemableType === 1) {
         // does have an image
         if (ImageLink !== "None") {
             const debug = new MessageEmbed()
@@ -159,7 +152,7 @@ async function updateEmbedMessage(member, textChannel, guild, gameName, redeemab
                 .setFooter(`${function_name} ${version}`);
             await message.edit({embeds: [debug]});
         }
-    } else if (redeemableType === "2") {
+    } else if (redeemableType === 2) {
         // full game
         // does have an image
         if (ImageLink !== "None") {
