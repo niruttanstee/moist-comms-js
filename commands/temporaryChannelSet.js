@@ -27,10 +27,10 @@ const version = 0.2;
 //     password: database_password,
 //     database: database_name
 // });
-
-database.connect(function (err) {
-    if (err) throw err;
-});
+//
+// database.connect(function (err) {
+//     if (err) throw err;
+// });
 
 module.exports = {
 

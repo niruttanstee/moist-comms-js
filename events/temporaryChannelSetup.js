@@ -28,19 +28,19 @@ module.exports = {
             //     database: database_name
             // });
 
-            database.connect(function (err) {
-                if (err) throw err;
-            });
-            database.query("SELECT * FROM temporaryChannelProperties", async function (err, result, fields) {
-                if (err) throw err;
-                for (let i = 0; i < result.length; i++) {
-
-                    if (result[i].guildID === guild.id && result[i].setupMessageID === messageID && result[i].ownerUserID === user.id) {
-                        console.log(`${dayjs()}: Reaction event detected for temporary channel setup.`);
-                        return await setupTempChannel(user, channel, guild);
-                    }
-                }
-            });
+            // database.connect(function (err) {
+            //     if (err) throw err;
+            // });
+            // database.query("SELECT * FROM temporaryChannelProperties", async function (err, result, fields) {
+            //     if (err) throw err;
+            //     for (let i = 0; i < result.length; i++) {
+            //
+            //         if (result[i].guildID === guild.id && result[i].setupMessageID === messageID && result[i].ownerUserID === user.id) {
+            //             console.log(`${dayjs()}: Reaction event detected for temporary channel setup.`);
+            //             return await setupTempChannel(user, channel, guild);
+            //         }
+            //     }
+            // });
         }
     }
 }

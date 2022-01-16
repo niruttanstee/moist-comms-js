@@ -25,9 +25,9 @@ const { user } = require('pg/lib/defaults');
 //     database: database_name
 // });
 
-database.connect(function (err) {
-    if (err) throw err;
-});
+// database.connect(function (err) {
+//     if (err) throw err;
+// });
 
 module.exports = {
 
