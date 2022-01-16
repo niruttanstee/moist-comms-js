@@ -1,11 +1,6 @@
 const { MessageEmbed} = require("discord.js");
 const wait = require('util').promisify(setTimeout);
 const dayjs = require('dayjs');
-const { pool } = require("../db");
-
-
-
-
 const {getGameName, getMention, checkRedeemableType, getDlcName, getImage, getDate, getSerialKey, eventRemove, getPlatform} = require("../commands/redeemable");
 const {redeemableSchedule} = require("../events/scheduler")
 const eventCategoryId = "870350901288788039";
