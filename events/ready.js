@@ -1,5 +1,5 @@
 const dayjs = require("dayjs");
-const { pool } = require("/queries");
+const { pool } = require("/queries.js");
 
 module.exports = {
     name: 'ready',
