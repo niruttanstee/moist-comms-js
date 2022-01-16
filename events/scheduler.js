@@ -27,7 +27,6 @@ module.exports = {
     name: 'ready',
     once: true,
     async execute(client) {
-        console.log(`${dayjs()}: Scheduler on.`);
         const guild = client.guilds.cache.get(guildId);
         await redeemableSchedule(client, guild);
         await redeemableScheduleRemoval(client, guild);
@@ -38,7 +37,6 @@ module.exports = {
 
 // scheduler
 async function redeemableSchedule(client, guild) {
-    console.log(`${dayjs()}: RedeemableScheduler is initiated.`)
     database.query("SELECT * FROM redeemable", async function (err, result, fields) {
         if (err) throw err;
         for (let i = 0; i < result.length; i++) {
@@ -115,7 +113,6 @@ async function redeemableSchedule(client, guild) {
 
 // scheduler to remove redeemable
 async function redeemableScheduleRemoval(client, guild) {
-    console.log(`${dayjs()}: Redeemable removal is initiated.`)
     database.query("SELECT * FROM redeemable", async function (err, result, fields) {
         if (err) throw err;
         for (let i = 0; i < result.length; i++) {

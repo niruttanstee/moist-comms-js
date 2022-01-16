@@ -1,4 +1,5 @@
 const dayjs = require("dayjs");
+const { pool } = require("queries");
 
 module.exports = {
     name: 'ready',
@@ -8,6 +9,17 @@ module.exports = {
 
         console.log(`Bot is running`);
         console.log(`${dayjs()}: Logged in as ${client.user.tag}.`);
+
+        // test database is working
+        await pool.query(
+            "SELECT * FROM testTable");
+        console.log(res.rows);
+
+
+
+
+
+
 
         const allGuilds = client.guilds;
         await allGuilds.fetch()

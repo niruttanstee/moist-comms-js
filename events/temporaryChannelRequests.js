@@ -1,6 +1,6 @@
 const dayjs = require("dayjs");
 const mysql = require("mysql");
-const {database_host, port, database_username, database_password, database_name} = require("../database.json");
+// const {database_host, port, database_username, database_password, database_name} = require("../database.json");
 const {setupTempChannel, autoSetup} = require("../commands/temporaryChannel");
 const {reviewProperties} = require("../commands/temporaryChannel");
 const {MessageEmbed} = require("discord.js");
@@ -12,13 +12,13 @@ const check = "868172184152064070";
 const cross = "868172332978548736";
 
 // database connection
-let database = mysql.createConnection({
-    host: database_host,
-    port: port,
-    user: database_username,
-    password: database_password,
-    database: database_name
-});
+// let database = mysql.createConnection({
+//     host: database_host,
+//     port: port,
+//     user: database_username,
+//     password: database_password,
+//     database: database_name
+// });
 
 
 module.exports = {

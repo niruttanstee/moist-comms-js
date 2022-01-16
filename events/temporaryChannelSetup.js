@@ -1,6 +1,6 @@
 const dayjs = require("dayjs");
 const mysql = require("mysql");
-const {database_host, port, database_username, database_password, database_name} = require("../database.json");
+// const {database_host, port, database_username, database_password, database_name} = require("../database.json");
 const {setupTempChannel, autoSetup} = require("../commands/temporaryChannel");
 const {reviewProperties} = require("../commands/temporaryChannel");
 module.exports = {
@@ -20,13 +20,13 @@ module.exports = {
 
         async function checkDatabase(messageID, guild, user, channel) {
             // mysql connection and check for event handling
-            let database = mysql.createConnection({
-                host: database_host,
-                port: port,
-                user: database_username,
-                password: database_password,
-                database: database_name
-            });
+            // let database = mysql.createConnection({
+            //     host: database_host,
+            //     port: port,
+            //     user: database_username,
+            //     password: database_password,
+            //     database: database_name
+            // });
 
             database.connect(function (err) {
                 if (err) throw err;

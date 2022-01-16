@@ -17,16 +17,16 @@ const mysql = require('mysql');
 const function_name = "RapidShard | Temporary Channel"
 const version = 0.2;
 
-const {database_host, port, database_username, database_password, database_name} = require("../database.json");
+// const {database_host, port, database_username, database_password, database_name} = require("../database.json");
 
 // database connection
-let database = mysql.createConnection({
-    host: database_host,
-    port: port,
-    user: database_username,
-    password: database_password,
-    database: database_name
-});
+// let database = mysql.createConnection({
+//     host: database_host,
+//     port: port,
+//     user: database_username,
+//     password: database_password,
+//     database: database_name
+// });
 
 database.connect(function (err) {
     if (err) throw err;

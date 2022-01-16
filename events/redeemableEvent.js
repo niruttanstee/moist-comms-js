@@ -3,6 +3,9 @@ const wait = require('util').promisify(setTimeout);
 const dayjs = require('dayjs');
 const mysql = require('mysql');
 const {database_host, port, database_username, database_password, database_name} = require("../database.json");
+
+
+
 const {getGameName, getMention, checkRedeemableType, getDlcName, getImage, getDate, getSerialKey, eventRemove, getPlatform} = require("../commands/redeemable");
 const {redeemableSchedule} = require("../events/scheduler")
 
@@ -20,13 +23,13 @@ const rapidShardChannelId = "908386507633610792";
 const guildId = "860934544693919744";
 
 // database connection
-let database = mysql.createConnection({
-    host: database_host,
-    port: port,
-    user: database_username,
-    password: database_password,
-    database: database_name
-});
+// let database = mysql.createConnection({
+//     host: database_host,
+//     port: port,
+//     user: database_username,
+//     password: database_password,
+//     database: database_name
+// });
 
 module.exports = {
     name: 'messageCreate',
