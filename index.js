@@ -50,4 +50,4 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-client.login(process.env.DIS_TOKEN);
+client.login(process.env.token);
