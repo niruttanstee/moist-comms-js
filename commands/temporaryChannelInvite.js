@@ -1,26 +1,14 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Permissions} = require("discord.js");
 const dayjs = require('dayjs');
-const mysql = require('mysql');
+const { pool } = require("../db");
 
 const function_name = "RapidShard | Temporary Channel"
 const version = 0.2;
 
-// const {database_host, port, database_username, database_password, database_name} = require("../database.json");
 const {verifiedRoleID, staffID} = require("../guild.json")
 
-// database connection
-// let database = mysql.createConnection({
-//     host: database_host,
-//     port: port,
-//     user: database_username,
-//     password: database_password,
-//     database: database_name
-// });
 
-// database.connect(function (err) {
-//     if (err) throw err;
-// });
 
 module.exports = {
 
@@ -49,14 +37,14 @@ module.exports = {
             return await error(interaction, "You can't grant permission to yourself.")
         }
 
-        database.query("SELECT * FROM temporaryChannelLive", async function (err, result, fields) {
+        pool.query(`SELECT * FROM "temporaryChannelLive"`, async function (err, result, fields) {
             if (err) throw err;
-            for (let i = 0; i < result.length; i++) {
-                if (guild.id === result[i].guildId && member.id === result[i].ownerId && channel.id === result[i].textChannelId) {
-                    if (result[i].lockedChannelRoleId === "0") {
+            for (let i = 0; i < result.rows.length; i++) {
+                if (guild.id === result.rows[i].guildId && member.id === result.rows[i].ownerId && channel.id === result.rows[i].textChannelId) {
+                    if (result.rows[i].lockedChannelRoleId === "0") {
                         return await error(interaction, "Channel is not locked.")
                     } else {
-                        const role = guild.roles.cache.get(result[i].lockedChannelRoleId);
+                        const role = guild.roles.cache.get(result.rows[i].lockedChannelRoleId);
                         const log = role.members;
                         for (let key of log.keys()) {
                             if (key === targetMember.id) {
@@ -69,12 +57,12 @@ module.exports = {
                             await user.roles.add(role);
                         }catch (e) {console.log(e)}
 
-                        const voiceChannel = guild.channels.cache.get(result[i].voiceChannelId)
-                        const textChannel = guild.channels.cache.get(result[i].textChannelId)
+                        const voiceChannel = guild.channels.cache.get(result.rows[i].voiceChannelId)
+                        const textChannel = guild.channels.cache.get(result.rows[i].textChannelId)
                         await successMember(interaction, member, targetMember,voiceChannel, textChannel);
                         return await successOwner(interaction, targetMember);
                     }
-                } else if (guild.id === result[i].guildId && member.id === result[i].ownerId && channel.id !== result[i].textChannelId) {
+                } else if (guild.id === result.rows[i].guildId && member.id === result.rows[i].ownerId && channel.id !== result.rows[i].textChannelId) {
                     return await error(interaction, "Command not entered in your text channel.")
                 }
             }

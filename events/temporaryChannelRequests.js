@@ -1,24 +1,15 @@
 const dayjs = require("dayjs");
 const mysql = require("mysql");
-// const {database_host, port, database_username, database_password, database_name} = require("../database.json");
 const {setupTempChannel, autoSetup} = require("../commands/temporaryChannel");
 const {reviewProperties} = require("../commands/temporaryChannel");
 const {MessageEmbed} = require("discord.js");
+const { pool } = require("../db");
 
 const function_name = "RapidShard | Temporary Channel"
 const version = 0.2;
 
 const check = "868172184152064070";
 const cross = "868172332978548736";
-
-// database connection
-// let database = mysql.createConnection({
-//     host: database_host,
-//     port: port,
-//     user: database_username,
-//     password: database_password,
-//     database: database_name
-// });
 
 
 module.exports = {
@@ -40,19 +31,19 @@ module.exports = {
 // check if the reaction is a message request handler
 async function checkMessageRequest(user, channel, guild, message, messageReaction) {
 
-    database.query("SELECT * FROM requestJoinChannel", async function (err, result, fields) {
+    pool.query(`SELECT * FROM "requestJoinChannel"`, async function (err, result, fields) {
         if (err) throw err;
 
-        for (let i = 0; i < result.length; i++) {
+        for (let i = 0; i < result.rows.length; i++) {
 
-            if (result[i].channelOwnerId === user.id && result[i].embedReceiver === message.id) {
-                const roleId = result[i].roleId;
-                const embedReceiver = result[i].embedReceiver;
-                const embedSender = result[i].embedSender;
-                const requesterId = result[i].requesterId;
-                const channelRequestId = result[i].channelRequestId;
-                const voiceChannelId = result[i].voiceChannelId;
-                const textChannelId = result[i].textChannelId;
+            if (result.rows[i].channelOwnerId === user.id && result.rows[i].embedReceiver === message.id) {
+                const roleId = result.rows[i].roleId;
+                const embedReceiver = result.rows[i].embedReceiver;
+                const embedSender = result.rows[i].embedSender;
+                const requesterId = result.rows[i].requesterId;
+                const channelRequestId = result.rows[i].channelRequestId;
+                const voiceChannelId = result.rows[i].voiceChannelId;
+                const textChannelId = result.rows[i].textChannelId;
                 return await requestHandler(messageReaction, roleId, embedReceiver, embedSender, requesterId, channel, guild, channelRequestId, voiceChannelId, textChannelId);
             }
         }
@@ -78,8 +69,8 @@ async function requestHandler(messageReaction, roleId, embedReceiver, embedSende
         await acceptedEmbedReceiver(member, messageReceiver);
         await acceptedEmbedSender(member, messageSender, voiceChannel, textChannel);
 
-        let sql = `DELETE FROM requestJoinChannel WHERE roleId = ${roleId} AND embedSender = ${embedSender}`;
-        database.query(sql, function (err, result) {
+        let sql = `DELETE FROM "requestJoinChannel" WHERE "roleId" = ${roleId} AND "embedSender" = ${embedSender}`;
+        pool.query(sql, function (err, result) {
             if (err) throw err;
         });
         console.log(`${dayjs()}: 1 request removed.`);
@@ -89,8 +80,8 @@ async function requestHandler(messageReaction, roleId, embedReceiver, embedSende
         await rejectedEmbedReceiver(member, messageReceiver);
         await rejectedEmbedSender(member, messageSender);
 
-        let sql = `DELETE FROM requestJoinChannel WHERE roleId = ${roleId} AND embedSender = ${embedSender}`;
-        database.query(sql, function (err, result) {
+        let sql = `DELETE FROM "requestJoinChannel" WHERE "roleId" = ${roleId} AND "embedSender" = ${embedSender}`;
+        pool.query(sql, function (err, result) {
             if (err) throw err;
         });
         console.log(`${dayjs()}: 1 request removed.`);

@@ -9,25 +9,12 @@ const mysql = require('mysql');
 const function_name = "RapidShard | Temporary Channel"
 const version = 0.2;
 const wait = require('util').promisify(setTimeout);
+const { pool } = require("../db");
 
 
-// const {database_host, port, database_username, database_password, database_name} = require("../database.json");
 const {verifiedRoleID, staffID} = require("../guild.json");
 const e = require('express');
 const { user } = require('pg/lib/defaults');
-
-// database connection
-// let database = mysql.createConnection({
-//     host: database_host,
-//     port: port,
-//     user: database_username,
-//     password: database_password,
-//     database: database_name
-// });
-
-// database.connect(function (err) {
-//     if (err) throw err;
-// });
 
 module.exports = {
 
@@ -51,16 +38,16 @@ module.exports = {
 
 // check if the temporary channel exist
 async function checkExist(member, owner, guild, interaction) {
-    database.query("SELECT * FROM temporaryChannelLive", async function (err, result, fields) {
+    pool.query(`SELECT * FROM "temporaryChannelLive"`, async function (err, result, fields) {
         if (err) throw err;
 
-        for (let i = 0; i < result.length; i++) {
+        for (let i = 0; i < result.rows.length; i++) {
 
-            if (result[i].ownerId === owner.id && result[i].ownerId !== member.id && result[i].guildId === guild.id && result[i].lockedChannelRoleId !== '0') {
+            if (result.rows[i].ownerId === owner.id && result.rows[i].ownerId !== member.id && result.rows[i].guildId === guild.id && result.rows[i].lockedChannelRoleId !== '0') {
                 // all parameters meet
-                const roleId = result[i].lockedChannelRoleId;
-                const textChannelId = result[i].textChannelId;
-                const voiceChannelId = result[i].voiceChannelId;
+                const roleId = result.rows[i].lockedChannelRoleId;
+                const textChannelId = result.rows[i].textChannelId;
+                const voiceChannelId = result.rows[i].voiceChannelId;
 
                 const role = guild.roles.cache.get(roleId);
                 const log = role.members;
@@ -71,10 +58,10 @@ async function checkExist(member, owner, guild, interaction) {
                 }
                 return await pendingCheck(member, owner, guild, interaction, roleId, textChannelId, voiceChannelId);
 
-            } else if (result[i].ownerId === owner.id && result[i].guildId === guild.id && owner.id === member.id){
+            } else if (result.rows[i].ownerId === owner.id && result.rows[i].guildId === guild.id && owner.id === member.id){
                 //channel requested is your own
                return await error(interaction, "Can't request to join your own channel.");
-            } else if (result[i].ownerId === owner.id && result[i].guildId === guild.id && result[i].lockedChannelRoleId === '0') {
+            } else if (result.rows[i].ownerId === owner.id && result.rows[i].guildId === guild.id && result.rows[i].lockedChannelRoleId === '0') {
                 //channel is not locked
                return await error(interaction, "Channel requesting isn't locked.");
             }
@@ -85,11 +72,11 @@ async function checkExist(member, owner, guild, interaction) {
 }
 // pending checker
 async function pendingCheck(member, owner, guild, interaction, roleId, textChannelId, voiceChannelId) {
-    database.query("SELECT * FROM requestJoinChannel", async function (err, result, fields) {
+    pool.query(`SELECT * FROM "requestJoinChannel"`, async function (err, result, fields) {
         if (err) throw err;
 
-        for (let i = 0; i < result.length; i++) {
-            if (result[i].roleId === roleId && result[i].channelOwnerId === owner.id && result[i].requesterId === member.id && result[i].status === 1) {
+        for (let i = 0; i < result.rows.length; i++) {
+            if (result.rows[i].roleId === roleId && result.rows[i].channelOwnerId === owner.id && result.rows[i].requesterId === member.id && result.rows[i].status === 1) {
                 return await error(interaction, "You already have a pending request for this room.");
             }
         }
@@ -104,9 +91,9 @@ async function requestSend(owner, member, roleId, textChannelId, voiceChannelId,
     const embedReceiver = await receiverEmbed(owner, member, textChannel, interaction);
     const embedSender = await senderEmbed(owner, member, interaction);
 
-    let sql = `INSERT INTO requestJoinChannel (embedSender, embedReceiver, status, roleId, channelOwnerId, requesterId, channelRequestId, voiceChannelId, textChannelId) 
+    let sql = `INSERT INTO "requestJoinChannel" ("embedSender", "embedReceiver", "status", "roleId", "channelOwnerId", "requesterId", "channelRequestId", "voiceChannelId", "textChannelId") 
     VALUES (${embedSender.id}, ${embedReceiver.id}, 1, ${roleId}, ${owner.id}, ${member.id}, ${interaction.channel.id}, ${voiceChannelId}, ${textChannelId})`;
-    database.query(sql, function(err, result) {
+    pool.query(sql, function(err, result) {
         if (err) throw err;
     });
     console.log(`${dayjs()}: 1 request inserted.`);
@@ -114,16 +101,16 @@ async function requestSend(owner, member, roleId, textChannelId, voiceChannelId,
     // wait 2 minutes before timing out the request
     await wait(120000)
 
-    database.query("SELECT * FROM requestJoinChannel", async function (err, result, fields) {
+    pool.query(`SELECT * FROM "requestJoinChannel"`, async function (err, result, fields) {
         if (err) throw err;
 
-        for (let i = 0; i < result.length; i++) {
-            if (result[i].roleId === roleId && result[i].channelOwnerId === owner.id && result[i].requesterId === member.id && result[i].status === 1) {
+        for (let i = 0; i < result.rows.length; i++) {
+            if (result.rows[i].roleId === roleId && result.rows[i].channelOwnerId === owner.id && result.rows[i].requesterId === member.id && result.rows[i].status === 1) {
                 await senderTimeoutEmbed(owner, interaction, embedSender)
                 await receiverTimeoutEmbed(member, interaction, embedReceiver)
 
-                let sql = `DELETE FROM requestJoinChannel WHERE roleId = ${roleId}`;
-                database.query(sql, function (err, result) {
+                let sql = `DELETE FROM "requestJoinChannel" WHERE roleId = ${roleId}`;
+                pool.query(sql, function (err, result) {
                     if (err) throw err;
                 });
                 console.log(`${dayjs()}: 1 pending request removed.`);

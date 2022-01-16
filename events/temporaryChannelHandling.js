@@ -1,26 +1,12 @@
 /*
 *   Event handler to detect if user has joined a creation channel, and if so, create a temporary channel and move them
-*   there. The channel will take properties from the parameter within the database.
+*   there. The channel will take properties from the parameter within the pool.
 */
 const dayjs = require("dayjs");
-const mysql = require("mysql");
+const { pool } = require("../db");
 const { MessageEmbed } = require("discord.js");
-// const {database_host, port, database_username, database_password, database_name} = require("../database.json");
 const function_name = "RapidShard | Temporary Channel"
 const version = 0.2;
-
-// database connection
-// let database = mysql.createConnection({
-//     host: database_host,
-//     port: port,
-//     user: database_username,
-//     password: database_password,
-//     database: database_name
-// });
-
-// database.connect(function (err) {
-//     if (err) throw err;
-// });
 
 module.exports = {
     name: 'voiceStateUpdate',
@@ -62,17 +48,17 @@ module.exports = {
 // checker function that confirms if user is in creation channel or has left a channel
 async function channelConnectCheck(memberInChannelId, member, guild) {
 
-    database.query("SELECT * FROM temporaryChannelProperties", async function (err, result, fields) {
+    pool.query(`SELECT * FROM "temporaryChannelProperties"`, async function (err, result, fields) {
         if (err) throw err;
 
-        for (let i = 0; i < result.length; i++) {
+        for (let i = 0; i < result.rows.length; i++) {
 
-            if (result[i].guildID === guild.id && result[i].creationChannelID === memberInChannelId) {
+            if (result.rows[i].guildID === guild.id && result.rows[i].creationChannelID === memberInChannelId) {
                 console.log(`${dayjs()}: ${member.displayName} has joined a creation channel, creating temp channel.`);
-                const voiceCategoryID = result[i].voiceCategoryID;
-                const textCategoryID = result[i].textCategoryID ;
-                const bitrate = result[i].channelBitrate;
-                const userLimit = result[i].channelUserLimit;
+                const voiceCategoryID = result.rows[i].voiceCategoryID;
+                const textCategoryID = result.rows[i].textCategoryID ;
+                const bitrate = result.rows[i].channelBitrate;
+                const userLimit = result.rows[i].channelUserLimit;
 
                 return await createChannels(voiceCategoryID, textCategoryID, bitrate, userLimit, member, guild);
             }
@@ -95,8 +81,8 @@ async function createChannels(voiceCategoryID, textCategoryID, bitrate, userLimi
 
     await moveMember(member, voiceChannel, guild);
 
-    let sql = `INSERT INTO temporaryChannelLive (guildId, voiceChannelId, textChannelId, ownerId, renameLimiter, lockedChannelRoleId) VALUES (${guild.id}, ${voiceChannel.id}, ${textChannel.id}, ${member.id}, 0, 0)`;
-    database.query(sql, function(err, result) {
+    let sql = `INSERT INTO "temporaryChannelLive" ("guildId", "voiceChannelId", "textChannelId", "ownerId", "renameLimiter", "lockedChannelRoleId") VALUES (${guild.id}, ${voiceChannel.id}, ${textChannel.id}, ${member.id}, 0, 0)`;
+    pool.query(sql, function(err, result) {
         if (err) throw err;
     });
 }
@@ -108,16 +94,16 @@ async function moveMember(member, channel, guild){
 
 // function to check if user has left and if so, delete channel
 async function channelDisconnectCheck(memberOutChannelId, member, guild){
-    // database connection
-    database.query("SELECT * FROM temporaryChannelLive", async function (err, result, fields) {
+    // pool connection
+    pool.query(`SELECT * FROM "temporaryChannelLive"`, async function (err, result, fields) {
         if (err) throw err;
 
-        for (let i = 0; i < result.length; i++) {
+        for (let i = 0; i < result.rows.length; i++) {
 
-            if (result[i].guildId === guild.id && result[i].voiceChannelId === memberOutChannelId) {
-                const voiceChannelId = result[i].voiceChannelId;
-                const textChannelId = result[i].textChannelId;
-                const lockedChannelRoleId = result[i].lockedChannelRoleId;
+            if (result.rows[i].guildId === guild.id && result.rows[i].voiceChannelId === memberOutChannelId) {
+                const voiceChannelId = result.rows[i].voiceChannelId;
+                const textChannelId = result.rows[i].textChannelId;
+                const lockedChannelRoleId = result.rows[i].lockedChannelRoleId;
 
                 let voiceChannel = await guild.channels.fetch(voiceChannelId)
                     .then(channel => {
@@ -135,10 +121,7 @@ async function channelDisconnectCheck(memberOutChannelId, member, guild){
                 if (memberSize === 0) {
                     if(await channelsDelete(voiceChannel, textChannel, guild, lockedChannelRoleId)){}
 
-                    let sql = `DELETE FROM temporaryChannelLive WHERE voiceChannelId = ${memberOutChannelId}`;
-                    database.query(sql, function (err, result) {
-                        if (err) throw err;
-                    });
+                    pool.query(`DELETE FROM "temporaryChannelLive" WHERE "voiceChannelId" = $1`, [memberOutChannelId,]);
                     console.log(`${dayjs()}: ${member.displayName}'s room deleted.`);
 
                     return true;

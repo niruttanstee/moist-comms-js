@@ -3,7 +3,7 @@ const schedule = require('node-schedule');
 
 const arraySupport = require("dayjs/plugin/arraySupport");
 const mysql = require("mysql");
-const {database_host, port, database_username, database_password, database_name} = require("../database.json");
+// const {database_host, port, database_username, database_password, database_name} = require("../database.json");
 const {MessageEmbed} = require("discord.js");
 dayjs.extend(arraySupport);
 const guildId = "860934544693919744";
@@ -12,14 +12,14 @@ const guildId = "860934544693919744";
 const function_name = "RapidShard | Redeemable"
 const version = 0.1;
 
-// database connection
-let database = mysql.createConnection({
-    host: database_host,
-    port: port,
-    user: database_username,
-    password: database_password,
-    database: database_name
-});
+// // database connection
+// let database = mysql.createConnection({
+//     host: database_host,
+//     port: port,
+//     user: database_username,
+//     password: database_password,
+//     database: database_name
+// });
 
 
 
@@ -28,8 +28,8 @@ module.exports = {
     once: true,
     async execute(client) {
         const guild = client.guilds.cache.get(guildId);
-        await redeemableSchedule(client, guild);
-        await redeemableScheduleRemoval(client, guild);
+        // await redeemableSchedule(client, guild);
+        // await redeemableScheduleRemoval(client, guild);
 
     }, redeemableSchedule
 

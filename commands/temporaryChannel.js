@@ -12,25 +12,11 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require("discord.js");
 const wait = require('util').promisify(setTimeout);
 const dayjs = require('dayjs');
-const mysql = require('mysql');
+const { pool } = require("../db");
+
 
 const function_name = "RapidShard | Temporary Channel"
 const version = 0.2;
-
-// const {database_host, port, database_username, database_password, database_name} = require("../database.json");
-
-// database connection
-// let database = mysql.createConnection({
-//     host: database_host,
-//     port: port,
-//     user: database_username,
-//     password: database_password,
-//     database: database_name
-// });
-
-// database.connect(function (err) {
-//     if (err) throw err;
-// });
 
 module.exports = {
 
@@ -77,7 +63,7 @@ async function startup(channel, guild, member, interaction) {
         .catch(console.error);
 }
 
-//sets up temporary channel, checks if user is ready to proceed and then connect to database
+//sets up temporary channel, checks if user is ready to proceed and then connect to pool
 async function tempchannelSetup(channel, guild, member){
     const setupEmbed = new MessageEmbed()
         .setColor("#3288de")
@@ -86,28 +72,25 @@ async function tempchannelSetup(channel, guild, member){
         .setThumbnail('https://i.imgur.com/BOUt2gY.png')
         .setFooter(`${function_name} ${version}`);
     const message = await channel.send({ embeds: [setupEmbed]});
+    // add reactions for the embed message
+    await message.react(message.guild.emojis.cache.get('868172184152064070'));
+    await message.react(message.guild.emojis.cache.get('868172332978548736'));
 
-    database.query("SELECT * FROM temporaryChannelProperties", function (err, result, fields){
-        if (err) throw err;
-        for (let i = 0; i < result.length; i++) {
-            if (result[i].guildID === guild.id){
-                let sql = `UPDATE temporaryChannelProperties SET setupMessageID = (${message.id}) WHERE guildID = (${guild.id})`;
-                database.query(sql, function(err, result) {
-                    if (err) throw err;
-                });
+    pool.query(`SELECT * FROM "temporaryChannelProperties"`, async function (err, result, fields) {
+        if (err) ;
+        for (let i = 0; i < result.rows.length; i++) {
+            if (result.rows[i].guildID === guild.id) {
+                await pool.query(`UPDATE "temporaryChannelProperties" SET "setupMessageID" = $1 WHERE "guildID" = $2`, [message.id, guild.id,]);
                 return console.log(`${dayjs()}: setupMessageID updated.`);
             }
         }
-        let sql = `INSERT INTO temporaryChannelProperties (guildID, setupMessageID, ownerUserID) VALUES (${guild.id}, ${message.id}, ${member.id})`;
-        database.query(sql, function(err, result) {
+        let sql = `INSERT INTO "temporaryChannelProperties" ("guildID", "setupMessageID", "ownerUserID")
+                   VALUES (${guild.id}, ${message.id}, ${member.id})`;
+        pool.query(sql, function (err, result) {
             if (err) throw err;
         });
         return console.log(`${dayjs()}: 1 record inserted.`);
     });
-
-    // add reactions for the embed message
-    await message.react(message.guild.emojis.cache.get('868172184152064070'));
-    await message.react(message.guild.emojis.cache.get('868172332978548736'));
 }
 
 //event listener to setup temporary channel
@@ -141,11 +124,11 @@ async function autoSetup(user, channel, guild){
     // get all data params to setup creation channel
 
     // query to fetch voice category to create creation channel
-    database.query("SELECT * FROM temporaryChannelProperties", async function (err, result, fields) {
+    pool.query(`SELECT * FROM "temporaryChannelProperties"`, async function (err, result, fields) {
         if (err) throw err;
-        for (let i = 0; i < result.length; i++) {
-            if (result[i].guildID === guild.id) {
-                const voiceCategoryID = result[i].voiceCategoryID;
+        for (let i = 0; i < result.rows.length; i++) {
+            if (result.rows[i].guildID === guild.id) {
+                const voiceCategoryID = result.rows[i].voiceCategoryID;
 
                 // process voiceCategoryID to create voice creation channel
                 let voiceCategory = guild.channels.fetch(voiceCategoryID)
@@ -155,13 +138,12 @@ async function autoSetup(user, channel, guild){
                         //field 2: Creating Creation Channel // field 4: Progress processing
                         await updateField3(message);
 
-                        // append creation channel ID to database
-                        let sql = `UPDATE temporaryChannelProperties SET creationChannelID = ${creationChannel.id} WHERE guildID = ${guild.id}`;
-                        database.query(sql, function (err, result) {
-                                if (err) throw err;
-                                console.log(`${dayjs()}: creationChannelID updated.`);
-                            }
-                        );
+                        // append creation channel ID to pool
+                        await pool.query(`UPDATE "temporaryChannelProperties" SET "creationChannelID" = $1 WHERE "guildID" = $2`, [creationChannel.id, guild.id,]);
+                        let sql = `UPDATE "temporaryChannelProperties" SET "creationChannelID" = ${creationChannel.id} WHERE "guildID" = ${guild.id}`;
+                            if (err) throw err;
+                            console.log(`${dayjs()}: creationChannelID updated.`);
+
                         //field 3: Add spice and magic // field 4: Progress done
                         await updateField4(message);
                         return true;
@@ -176,29 +158,23 @@ async function autoSetup(user, channel, guild){
 // edit individual parameters
 async function reviewProperties(user, channel, guild) {
     // query to fetch all details
-    database.query("SELECT * FROM temporaryChannelProperties", async function (err, result, fields) {
+    pool.query(`SELECT * FROM "temporaryChannelProperties"`, async function (err, result, fields) {
         if (err) throw err;
-        for (let i = 0; i < result.length; i++) {
-            if (result[i].guildID === guild.id) {
-                const voiceCategoryID = result[i].voiceCategoryID;
-                const textCategoryID = result[i].textCategoryID;
-                const channelBitrate = result[i].channelBitrate;
-                const channelUserLimit = result[i].channelUserLimit;
+        for (let i = 0; i < result.rows.length; i++) {
+            if (result.rows[i].guildID === guild.id) {
+                const voiceCategoryID = result.rows[i].voiceCategoryID;
+                const textCategoryID = result.rows[i].textCategoryID;
+                const channelBitrate = result.rows[i].channelBitrate;
+                const channelUserLimit = result.rows[i].channelUserLimit;
 
                 let voiceCategoryObj = await guild.channels.fetch(voiceCategoryID);
                 let textCategoryObj = await guild.channels.fetch(textCategoryID);
 
                 let messageID = await reviewPropertiesEmbed(channel, voiceCategoryObj, textCategoryObj, channelBitrate, channelUserLimit);
 
-                // append database of new messageID
-                let sql = `UPDATE temporaryChannelProperties
-                           SET reviewMessageID = ${messageID}
-                           WHERE guildID = ${guild.id}`;
-                database.query(sql, function (err, result) {
-                        if (err) throw err;
-                        console.log(`${dayjs()}: textCategoryID updated.`);
-                    }
-                );
+                // append pool of new messageID
+                await pool.query(`UPDATE "temporaryChannelProperties" SET "reviewMessageID" = $1 WHERE "guildID" = $2`, [messageID, guild.id,]);
+                    console.log(`${dayjs()}: textCategoryID updated.`);
                 return await checkEditCalls(user, channel, guild);
             }
         }
@@ -279,7 +255,7 @@ async function checkEditCalls(user, channel, guild){
 
 }
 
-//get voice categoryID and store it in the database
+//get voice categoryID and store it in the pool
 async function getVoiceCategory(user, channel, guild) {
 
     for (let i = 1; i <= 5; i++) {
@@ -299,14 +275,8 @@ async function getVoiceCategory(user, channel, guild) {
                 let voiceCategory = await guild.channels.fetch(voiceCategoryID);
                 await successDetectionCategoryID(voiceCategory, channel);
 
-                let sql = `UPDATE temporaryChannelProperties
-                           SET voiceCategoryID = ${voiceCategory.id}
-                           WHERE guildID = ${guild.id}`;
-                database.query(sql, function (err, result) {
-                    if (err) throw err;
+                await pool.query(`UPDATE "temporaryChannelProperties" SET "voiceCategoryID" = $1 WHERE "guildID" = $2`, [voiceCategory.id, guild.id,]);
                     console.log(`${dayjs()}: voiceCategoryID updated.`);
-                });
-
                 return true;
             } else {
 
@@ -325,7 +295,7 @@ async function getVoiceCategory(user, channel, guild) {
     return false;
 }
 
-//get text categoryID and store it in the database
+//get text categoryID and store it in the pool
 async function getTextCategory(user, channel, guild) {
 
     for (let i = 1; i <= 5; i++){
@@ -341,12 +311,8 @@ async function getTextCategory(user, channel, guild) {
                 let textCategory = await guild.channels.fetch(textCategoryID);
                 await successDetectionCategoryID(textCategory, channel);
 
-                let sql = `UPDATE temporaryChannelProperties SET textCategoryID = ${textCategory.id} WHERE guildID = ${guild.id}`;
-                database.query(sql, function (err, result) {
-                    if (err) throw err;
+                await pool.query(`UPDATE "temporaryChannelProperties" SET "textCategoryID" = $1 WHERE "guildID" = $2`, [textCategory.id, guild.id,]);
                     console.log(`${dayjs()}: textCategoryID updated.`);
-                });
-
                 return true;
 
             } else {
@@ -386,12 +352,8 @@ async function getDefaultChannelBitrate(user, channel, guild) {
             if (bitrate === false) {
                 await errorNotFoundEmbed(i, "Bitrate", channel);
             } else {
-
-                let sql = `UPDATE temporaryChannelProperties SET channelBitrate = ${bitrate} WHERE guildID = ${guild.id}`;
-                database.query(sql, function (err, result) {
-                    if (err) throw err;
+                await pool.query(`UPDATE "temporaryChannelProperties" SET "channelBitrate" = $1 WHERE "guildID" = $2`, [bitrate, guild.id,]);
                     console.log(`${dayjs()}: channelBitrate updated.`);
-                });
 
                 await successDetectionElement(`Bitrate`, channel)
                 return true;
@@ -423,20 +385,13 @@ async function getDefaultUserLimit(user, channel, guild) {
             if (userLimit === false){
                 await errorNotFoundEmbed(i, "User limit (number)", channel);
             } else {
-
-                let sql = `UPDATE temporaryChannelProperties
-                           SET channelUserLimit = ${userLimit}
-                           WHERE guildID = ${guild.id}`;
-                database.query(sql, function (err, result) {
-                    if (err) throw err;
+                await pool.query(`UPDATE "temporaryChannelProperties" SET "channelUserLimit" = $1 WHERE "guildID" = $2`, [userLimit, guild.id,]);
                     console.log(`${dayjs()}: userLimit record updated.`);
-                });
 
                 await successDetectionElement(`User limit (${userLimit})`, channel)
                 return true;
             }
         } catch {
-
             // catch timeout error
             await sessionTimedOutEmbed(channel);
             return false;

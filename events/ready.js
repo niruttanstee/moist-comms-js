@@ -10,18 +10,11 @@ module.exports = {
         console.log(`Bot is running`);
         console.log(`${dayjs()}: Logged in as ${client.user.tag}.`);
 
-        // test database is working
-        pool.query("SELECT * FROM testTable", async function (err, result, fields) {
-            if (err) throw err;
-            for (result in result.length) {
-                console.log(result);
-            }
-        });
 
-
-
-
-
+        // pool.query(`SELECT * FROM "temporaryChannelProperties"`, async function (err, result, fields) {
+        //     console.log(result.rows.length)
+        //     if (err) ;
+        // });
 
         const allGuilds = client.guilds;
         await allGuilds.fetch()

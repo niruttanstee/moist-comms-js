@@ -12,25 +12,11 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require("discord.js");
 const wait = require('util').promisify(setTimeout);
 const dayjs = require('dayjs');
-const mysql = require('mysql');
+const { pool } = require("../db");
 
 const function_name = "RapidShard | Temporary Channel"
 const version = 0.2;
 
-// const {database_host, port, database_username, database_password, database_name} = require("../database.json");
-
-// database connection
-// let database = mysql.createConnection({
-//     host: database_host,
-//     port: port,
-//     user: database_username,
-//     password: database_password,
-//     database: database_name
-// });
-//
-// database.connect(function (err) {
-//     if (err) throw err;
-// });
 
 module.exports = {
 
@@ -93,14 +79,14 @@ module.exports = {
  */
 async function checkUser(member, channel, guild, userLimit, interaction) {
 
-    database.query("SELECT * FROM temporaryChannelLive", async function (err, result, fields) {
+    pool.query(`SELECT * FROM "temporaryChannelLive"`, async function (err, result, fields) {
         if (err) throw err;
 
-        for (let i = 0; i < result.length; i++) {
+        for (let i = 0; i < result.rows.length; i++) {
 
-            if (result[i].guildId === guild.id && result[i].textChannelId === channel.id && result[i].ownerId === member.id) {
+            if (result.rows[i].guildId === guild.id && result.rows[i].textChannelId === channel.id && result.rows[i].ownerId === member.id) {
                 console.log(`${dayjs()}: ${member.displayName} owns the channel, changing.`);
-                const voiceChannelID = result[i].voiceChannelId;
+                const voiceChannelID = result.rows[i].voiceChannelId;
                 let voiceChannel = guild.channels.cache.get(voiceChannelID);
                 return await setUserLimit(voiceChannel, userLimit, interaction);
 
@@ -161,26 +147,20 @@ async function userLimitFail(interaction) {
  * @param interaction
 */
 async function giveOwnership(newOwner, interaction) {
-    database.query("SELECT * FROM temporaryChannelLive", async function (err, result, fields) {
+    pool.query(`SELECT * FROM "temporaryChannelLive"`, async function (err, result, fields) {
         if (err) throw err;
 
         const guild = interaction.guild;
         const channel = interaction.channel;
         const user = interaction.user;
 
-        for (let i = 0; i < result.length; i++) {
+        for (let i = 0; i < result.rows.length; i++) {
 
-            if (result[i].guildId === guild.id && result[i].textChannelId === channel.id && result[i].ownerId === user.id) {
+            if (result.rows[i].guildId === guild.id && result.rows[i].textChannelId === channel.id && result.rows[i].ownerId === user.id) {
                 console.log(`${dayjs()}: ${user.displayName} owns the channel, changing.`);
-                const textChannelId = result[i].textChannelId;
-                
-                let sql = `UPDATE temporaryChannelLive SET ownerId = ${newOwner.id} WHERE textChannelId = ${textChannelId}`;
-                database.query(sql, function (err, result) {
-                        if (err) throw err;
-                        console.log(`${dayjs()}: Tempchannel ownership updated.`);
-                    }
-                );
-
+                const textChannelId = result.rows[i].textChannelId;
+                await pool.query(`UPDATE "temporaryChannelLive" SET "ownerId" = $1 WHERE "textChannelId" = $2`, [newOwner.id, textChannelId,]);
+                    console.log(`${dayjs()}: Tempchannel ownership updated.`);
                 return successOwnership(newOwner, interaction);
 
             }
@@ -213,16 +193,16 @@ async function setName(name, interaction) {
     const member = interaction.member;
 
     if (name.length > 0 && name.length <= 20) {
-        database.query("SELECT * FROM temporaryChannelLive", async function (err, result, fields) {
+        pool.query(`SELECT * FROM "temporaryChannelLive"`, async function (err, result, fields) {
             if (err) throw err;
 
-            for (let i = 0; i < result.length; i++) {
+            for (let i = 0; i < result.rows.length; i++) {
 
-                if (result[i].guildId === guild.id && result[i].textChannelId === channel.id && result[i].ownerId === member.id) {
+                if (result.rows[i].guildId === guild.id && result.rows[i].textChannelId === channel.id && result.rows[i].ownerId === member.id) {
                     console.log(`${dayjs()}: ${member.displayName} checker passed, owner of channel.`);
-                    const voiceChannelId = result[i].voiceChannelId;
-                    const textChannelId = result[i].textChannelId;
-                    const renameLimiter = result[i].renameLimiter;
+                    const voiceChannelId = result.rows[i].voiceChannelId;
+                    const textChannelId = result.rows[i].textChannelId;
+                    const renameLimiter = result.rows[i].renameLimiter;
 
                     if (renameLimiter <= 2) {
                         // rename
@@ -235,12 +215,8 @@ async function setName(name, interaction) {
 
                         let newLimiter = renameLimiter + 1;
                         // store new limiter
-                        let sql = `UPDATE temporaryChannelLive SET renameLimiter = ${newLimiter} WHERE textChannelId = ${textChannelId}`;
-                        database.query(sql, function (err, result) {
-                                if (err) throw err;
-                                console.log(`${dayjs()}: Tempchannel setName updated.`);
-                            }
-                        );
+                        await pool.query(`UPDATE "temporaryChannelLive" SET "renameLimiter" = $1 WHERE "textChannelId" = $2`, [newLimiter, textChannelId,]);
+                            console.log(`${dayjs()}: Tempchannel setName updated.`);
                         return await setNameSuccess(name, interaction);
                     } else {
                         // rename delay for 10 minutes
