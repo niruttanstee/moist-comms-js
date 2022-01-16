@@ -69,7 +69,7 @@ async function redeemableSchedule(client, guild) {
                                     let messageId = result.rows[i].messageId;
 
                                     // update pool
-                                    await pool.query(`UPDATE "redeemable" SET "winner" = $1 WHERE messageId = $2`, [winnerMember.user.id], messageId,);
+                                    await pool.query(`UPDATE "redeemable" SET "winner" = $1 WHERE "messageId" = $2`, [winnerMember.user.id], messageId,);
                                     // update published message embed
 
                                     await updateEmbedMessage(member, channel, guild, gameName, redeemableType, DlcName, ImageLink, giveawayDate, postedAnnouncementMessage, platform, winnerMember);
