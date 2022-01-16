@@ -198,7 +198,7 @@ async function updateEmbedMessage(member, textChannel, guild, gameName, redeemab
 async function winnerEmbed(member, textChannel, guild, gameName, redeemableType, DlcName, ImageLink, date, message, platform, winner, key){
 
     // is a DLC
-    if (redeemableType === "1") {
+    if (redeemableType === 1) {
         // does have an image
         if (ImageLink !== "None") {
             const debug = new MessageEmbed()
@@ -223,7 +223,7 @@ async function winnerEmbed(member, textChannel, guild, gameName, redeemableType,
                 .setFooter(`${function_name} ${version}`);
             await winner.send({embeds: [debug]});
         }
-    } else if (redeemableType === "2") {
+    } else if (redeemableType === 2) {
         // full game
         // does have an image
         if (ImageLink !== "None") {
