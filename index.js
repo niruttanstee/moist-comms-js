@@ -1,5 +1,4 @@
 const fs = require('fs');
-require('dotenv').config()
 const token = process.env.token;
 const dayjs = require("dayjs");
 const { Client, Collection, Intents } = require('discord.js');
