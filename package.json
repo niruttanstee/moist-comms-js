@@ -18,5 +18,9 @@
     "ascii-table": "^0.0.9",
     "datetime-js": "^4.0.0",
     "dotenv": "^10.0.0"
+  },
+  "scripts": {
+    "start": "node index.js"
   }
+
 }
