@@ -412,6 +412,7 @@ async function publishRedeemable(member, channel, guild, gameName, mention, rede
     const publishedMessage = await publishedEmbed(member, textChannel, guild, gameName, mention, redeemableType, DlcName, ImageLink, date, messageId, platform);
     // add reactions for the embed message
     await publishedMessage.react(publishedMessage.guild.emojis.cache.get('868172184152064070'));
+    await pool.query(`UPDATE "redeemable" SET "publishedMessageId" = $1 WHERE "messageId" = $2`, [publishedMessage.id, messageId]);
     return textChannel;
 }
 
@@ -450,7 +451,6 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
                 .setImage(`${ImageLink}`)
                 .setFooter(`${function_name} ${version}`);
             const publishedMessage = await textChannel.send({embeds: [debug]});
-            await pool.query(`UPDATE "redeemable" SET "publishedMessageId" = $1 WHERE "messageId" = $2`, [publishedMessage.id, messageId]);
             return publishedMessage;
         } else {
             // does not have an image
@@ -465,7 +465,6 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
                 .setFields({name: `_ _`,value: "```js\n"+`### AWAITING DRAW ###`+"```", inline: false})
                 .setFooter(`${function_name} ${version}`);
             const publishedMessage = await textChannel.send({embeds: [debug]});
-            await pool.query(`UPDATE "redeemable" SET "publishedMessageId" = $1 WHERE "messageId" = $2`, [publishedMessage.id, messageId]);
             return publishedMessage;
         }
     } else if (redeemableType === 2) {
@@ -484,7 +483,6 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
                 .setImage(`${ImageLink}`)
                 .setFooter(`${function_name} ${version}`);
             const publishedMessage = await textChannel.send({embeds: [debug]});
-            await pool.query(`UPDATE "redeemable" SET "publishedMessageId" = $1 WHERE "messageId" = $2`, [publishedMessage.id, messageId]);
             return publishedMessage;
         } else {
             // does not have an image
@@ -499,7 +497,6 @@ async function publishedEmbed(member, textChannel, guild, gameName, mention, red
                 .setFields({name: `_ _`,value: "```js\n"+`### AWAITING DRAW ###`+"```", inline: false})
                 .setFooter(`${function_name} ${version}`);
             const publishedMessage = await textChannel.send({embeds: [debug]});
-            await pool.query(`UPDATE "redeemable" SET "publishedMessageId" = $1 WHERE "messageId" = $2`, [publishedMessage.id, messageId]);
             return publishedMessage;
         }
     } else {
