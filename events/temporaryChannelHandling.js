@@ -15,7 +15,6 @@ module.exports = {
     async execute(oldState, newState) {
         // call get state
         // let states = await getState(oldState, newState);
-
         const memberInChannelId = newState.channelId;
         const memberOutChannelId = oldState.channelId;
         const guild = oldState.guild;
@@ -35,37 +34,26 @@ module.exports = {
 
 };
 
-/*async function getState(oldState, newState){
-    // get parameters from member object
-    const memberInChannelId = newState.channelId;
-    const memberOutChannelId = oldState.channelId;
-    const guild = oldState.guild;
-    const member = newState.member;
-
-    return [memberInChannelId, memberOutChannelId, member, guild];
-
-}
-   */
 // checker function that confirms if user is in creation channel or has left a channel
 async function channelConnectCheck(memberInChannelId, member, guild) {
-
-    pool.query(`SELECT * FROM "temporaryChannelProperties"`, async function (err, result, fields) {
-        if (err) throw err;
-
-        for (let i = 0; i < result.rows.length; i++) {
-
-            if (result.rows[i].guildID === guild.id && result.rows[i].creationChannelID === memberInChannelId) {
+    try {
+        pool.query(`SELECT *
+                    FROM "temporaryChannelProperties"
+                    WHERE "guildID" = $1`, [guild.id,], async function (err, result, fields) {
+            if (err) throw err;
+            const creationChannelID = result.rows[0].creationChannelID;
+            if (creationChannelID === memberInChannelId) {
                 console.log(`${dayjs()}: ${member.displayName} has joined a creation channel, creating temp channel.`);
-                const voiceCategoryID = result.rows[i].voiceCategoryID;
-                const textCategoryID = result.rows[i].textCategoryID ;
-                const bitrate = result.rows[i].channelBitrate;
-                const userLimit = result.rows[i].channelUserLimit;
-
+                const voiceCategoryID = result.rows[0].voiceCategoryID;
+                const textCategoryID = result.rows[0].textCategoryID;
+                const bitrate = result.rows[0].channelBitrate;
+                const userLimit = result.rows[0].channelUserLimit;
                 return await createChannels(voiceCategoryID, textCategoryID, bitrate, userLimit, member, guild);
             }
-        }
-        return false;
-    });
+        });
+    } catch {
+
+    }
 
 }
 
@@ -74,23 +62,23 @@ async function createChannels(voiceCategoryID, textCategoryID, bitrate, userLimi
     // fetch parameters
     let voiceCategory = await guild.channels.fetch(voiceCategoryID);
     let textCategory = await guild.channels.fetch(textCategoryID);
-
     // create the channels
     let voiceChannel = await voiceCategory.createChannel(`${member.displayName}'s room`, {type: "GUILD_VOICE", bitrate: `${bitrate}`});
+    await member.voice.setChannel(voiceChannel);
     let textChannel = await textCategory.createChannel(`${member.displayName}'s room`, {type: "GUILD_TEXT", position: 3});
-    await temporaryChannelStartMessage(textChannel, member);
-
-    await moveMember(member, voiceChannel, guild);
-
+    //embed
+    const startEmbed = new MessageEmbed()
+        .setColor("#3288de")
+        .setTitle(`${member.displayName}'s Room`)
+        .setDescription(`<:ok:865288784618717207> <@${member.id}> this is your temporary text channel, when your temporary voice channel is empty and gets deleted, this will also be deleted.\n\nFind out all features of temporary channel:`
+            + "```/channel commands```")
+        .setFooter(`${function_name} ${version}`);
+    await textChannel.send({embeds: [startEmbed]});
     let sql = `INSERT INTO "temporaryChannelLive" ("guildId", "voiceChannelId", "textChannelId", "ownerId", "renameLimiter", "lockedChannelRoleId") VALUES (${guild.id}, ${voiceChannel.id}, ${textChannel.id}, ${member.id}, 0, 0)`;
     pool.query(sql, function(err, result) {
         if (err) throw err;
     });
-}
 
-// move member to channel
-async function moveMember(member, channel, guild){
-    await member.voice.setChannel(channel, "Temporary voice channel")
 }
 
 // function to check if user has left and if so, delete channel
@@ -151,15 +139,4 @@ async function channelsDelete(voiceChannel, textChannel, guild, lockedChannelRol
         await role.delete();
     }catch {}
     return true;
-}
-
-//the embed posted when a text channel is created
-async function temporaryChannelStartMessage(textChannel, member){
-    const startEmbed = new MessageEmbed()
-        .setColor("#3288de")
-        .setTitle(`${member.displayName}'s Room`)
-        .setDescription(`<:ok:865288784618717207> <@${member.id}> this is your temporary text channel, when your temporary voice channel is empty and gets deleted, this will also be deleted.\n\nFind out all features of temporary channel:`
-            + "```/channel commands```")
-        .setFooter(`${function_name} ${version}`);
-    await textChannel.send({embeds: [startEmbed]});
 }
