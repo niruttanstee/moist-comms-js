@@ -3,3 +3,4 @@ database.json
 guild.json
 test
 .env
+deploy-commands.js

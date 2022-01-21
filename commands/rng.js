@@ -12,7 +12,8 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('number')
-                .setDescription('Rolls a number between 0 and 100.'))
+                .setDescription('Rolls a number between 0 and n.')
+                .addNumberOption(option => option.setName('n').setDescription('The number to roll up until').setRequired(true)))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('oddson')
@@ -26,7 +27,8 @@ module.exports = {
     async execute(interaction) {
 
         if (interaction.options.getSubcommand() === 'number') {
-            return await rollNumber(interaction);
+            const n = interaction.options.getNumber('n');
+            return await rollNumber(interaction, n);
         } else if (interaction.options.getSubcommand() === 'list') {
             const list = interaction.options.getString('list');
             return await rollList(interaction, list);
@@ -36,9 +38,9 @@ module.exports = {
     },
 };
 
-// roll number between 0 and 100.
-async function rollNumber(interaction) {
-    let number = Math.floor(Math.random() * 100) + 1;
+// roll number between 0 and n.
+async function rollNumber(interaction, n) {
+    let number = Math.floor(Math.random() * n) + 1;
     // Embed for successful detection of category ID
         const numberEmbed = new MessageEmbed()
             .setColor("#4cc0a5")
