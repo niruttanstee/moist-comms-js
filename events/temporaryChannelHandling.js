@@ -64,8 +64,8 @@ async function createChannels(voiceCategoryID, textCategoryID, bitrate, userLimi
     let textCategory = await guild.channels.fetch(textCategoryID);
     // create the channels
     let voiceChannel = await voiceCategory.createChannel(`${member.displayName}'s room`, {type: "GUILD_VOICE", bitrate: `${bitrate}`});
-    let textChannel = await textCategory.createChannel(`${member.displayName}'s room`, {type: "GUILD_TEXT", position: 3});
     await member.voice.setChannel(voiceChannel);
+    let textChannel = await textCategory.createChannel(`${member.displayName}'s room`, {type: "GUILD_TEXT", position: 3});
     //embed
     const startEmbed = new MessageEmbed()
         .setColor("#3288de")
@@ -104,8 +104,10 @@ async function channelDisconnectCheck(memberOutChannelId, member, guild){
                         return channel;
                     }).catch(console.error);
 
+                let memberSize = voiceChannel.members.size;
+
                 // check if size
-                if (voiceChannel.members.size === 0) {
+                if (memberSize === 0) {
                     if(await channelsDelete(voiceChannel, textChannel, guild, lockedChannelRoleId)){}
 
                     pool.query(`DELETE FROM "temporaryChannelLive" WHERE "voiceChannelId" = $1`, [memberOutChannelId,]);
