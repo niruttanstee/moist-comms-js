@@ -23,7 +23,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('tempchannel')
         .setDescription('Temporary channel function.')
-        .setDefaultPermission(false)
+        .setDefaultPermission(true)
         .addSubcommand(subcommand =>
             subcommand
                 .setName('setup')
